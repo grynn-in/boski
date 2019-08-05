@@ -1,0 +1,63 @@
+{
+ "autoname": "field:boski_customer_email",
+ "creation": "2019-08-02 10:24:47.683165",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "boski_customer_name",
+  "boski_customer_email",
+  "column_break_3",
+  "boski_customer_domain"
+ ],
+ "fields": [
+  {
+   "fieldname": "boski_customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Boski Customer Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "boski_customer_domain",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Boski Customer Domain",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "boski_customer_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Boski Customer Email",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "modified": "2019-08-02 13:57:51.084407",
+ "modified_by": "Administrator",
+ "module": "Boski",
+ "name": "Boski Site Manager",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
