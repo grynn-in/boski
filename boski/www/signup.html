@@ -2,56 +2,102 @@
 	Developer: Kartik Sharma
  	Email: kartik.sharma@grynn.in
 -->
-
 {% extends "frappe/templates/base.html" %}
 
 {% block head_include %}
-	<link type="text/css" rel="stylesheet" href="/assets/boski/css/boski-theme-bs4.css">
+<link type="text/css" rel="stylesheet" href="/assets/boski/css/boski-theme-bs4.css">
 {% endblock %}
 
 {% block content %}
+<div id="page-signup">
+	<section class="top-section staged-form">
+		<div class="container">
+			<h2 class="mb-4">Sign Up for ERPNext</h2>
 
-<section class="top-section staged-form">
-	<div class="container">
-		<h2 class="mb-4">Sign Up for ERPNext</h2>
+			<div class="stage-container w-800">
+				<div class="stage-line"></div>
+				<i class="stage stage-1 completed"></i>
+				<i class="stage stage-2"></i>
+				<i class="stage stage-3"></i>
+				<i class="stage stage-4"></i>
+			</div>
 
-		<div class="stage-container w-500">
-			<div class="stage-line"></div>
-			<i class="stage stage-1 completed"></i>
-			<!-- <i class="stage stage-2"></i> -->
-			<i class="stage stage-3"></i>
-			<i class="stage stage-4"></i>
-		</div>
-
-		<div class="stage-names w-500">
-			<div class="stage-name personal-setup small">Personal Info</div>
-			<!-- <div class="stage-name verify-email text-extra-muted small ">Verify Email</div> -->
-			<div class="stage-name regional-setup text-extra-muted small ">Regional Settings</div>
-			<div class="stage-name business-setup text-extra-muted small ">Business Settings</div>
-		</div>
+			<div class="stage-names w-800">
+				<div class="stage-name personal-setup small">Personal Info</div>
+				<div class="stage-name verify-email text-extra-muted small ">Verify Email</div>
+				<div class="stage-name regional-setup text-extra-muted small ">Select Plan</div>
+				<div class="stage-name business-setup text-extra-muted small ">Payment</div>
+			</div>
 
 
-		<div class="missing-domain-msg text-center hidden w-500 mb-4">
-			<p class="alert alert-warning"><span class="missing-domain text-primary"></span> does not exist</p>
-			<i class="octicon octicon-chevron-down mega-octicon" style="color: #36414C;"></i>
-		</div>
+			<div class="missing-domain-msg text-center hidden w-800 mb-4">
+				<p class="alert alert-warning"><span class="missing-domain text-primary"></span> does not exist</p>
+				<i class="octicon octicon-chevron-down mega-octicon" style="color: #36414C;"></i>
+			</div>
 
-		<div>
-			<div class="w-500 card text-left">
-				<div class="card-body">
+			<div>
+				<div class="row my-5">
+					{% for plan in plans.base_plans %}
+					<div class="col-12 col-md mb-3 mb-md-0">
+						<div class="card plan-card border border-primary">
+							<!---->
+							<div class="card-body">
+								<h4 class="card-title text-uppercase ">{{plan.item_name}}</h4>
+								<div class="row">
+									<div class="col-6 col-md-12 text-dark text-nowrap">
+										<!-- <sup style="font-size: 1.5em;">₹</sup>  -->
+										<span class="display-4" style="font-size: 2.5rem;">{{plan.price}}</span>
+										<span class="text-muted">
+											{% if plan.name =="Annually" %} /year
+											{% else %} /month
+											{% endif %}
+										</span>
+										<span class="text-muted"> /User</span>
+									</div>
+									<div class="col-6 col-md-12 small mt-md-2">
+										<div class="d-flex align-items-center"><svg xmlns="http://www.w3.org/2000/svg"
+												width="16" height="16" viewBox="0 0 24 24" fill="none"
+												stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												stroke-linejoin="round" class="feather feather-check mr-2 mt-1">
+												<polyline points="20 6 9 17 4 12"></polyline>
+											</svg>
+											{{plans.base_features.space}}
+										</div>
+										<div class="d-flex align-items-center"><svg xmlns="http://www.w3.org/2000/svg"
+												width="16" height="16" viewBox="0 0 24 24" fill="none"
+												stroke="currentColor" stroke-width="2" stroke-linecap="round"
+												stroke-linejoin="round" class="feather feather-check mr-2 mt-1">
+												<polyline points="20 6 9 17 4 12"></polyline>
+											</svg>
+											{{plans.base_features.emails}}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% endfor %}
+
+				</div>
+				<div class="w-800 card text-left">
+					<div class="card-body">
+
 						<!-- Personal Info Section -->
 						<div class="personal-info">
 							<form class="signup-state-details" role="form">
 								<div class="form-group signup-subdomain">
-									<p class="help-block">Your Site Name <em class="small text-muted">(can only contain letters and numbers.)</em></p>
+									<p class="help-block">Your Site Name <em class="small text-muted">(can only contain
+											letters and numbers.)</em></p>
 									<div class="input-group">
-										<input name="subdomain" placeholder="mycompany" class="form-control" type="text">
+										<input name="subdomain" placeholder="mycompany" class="form-control"
+											type="text">
 										<div class="input-group-append">
 											<span class="input-group-text">.grr.fyi</span>
 										</div>
 									</div>
 									<div class="availability">
-										<span class="availability-status hidden"><i class="octicon octicon-check"></i><span></span></span>
+										<span class="availability-status hidden"><i
+												class="octicon octicon-check"></i><span></span></span>
 										<span class="availability-spinner small text-muted hidden">checking...</span>
 									</div>
 									<p class="validation-message small"></p>
@@ -71,12 +117,13 @@
 									</div>
 								</div>
 								<!-- <div class="form-group">
-									<p class="help-block">Phone Number</p>
-									<input name="phone_number" placeholder="+91 9823 000 000" class="form-control" type="number" min="0">
-								</div> -->
+													<p class="help-block">Phone Number</p>
+													<input name="phone_number" placeholder="+91 9823 000 000" class="form-control" type="number" min="0">
+												</div> -->
 								<div class="form-group">
 									<p class="help-block">Your Email</p>
-									<input name="email" placeholder="jane_doe@example.com" class="form-control" type="text">
+									<input name="email" placeholder="jane_doe@example.com" class="form-control"
+										type="text">
 									<p class="validation-message">Please enter a valid email address</p>
 								</div>
 
@@ -87,29 +134,28 @@
 								</div>
 								<p class="password-strength-message text-muted small hidden"></p>
 
-								<div class="form-group text-center mb-4 text-muted small">
-									<p><input name="agree-checkbox" type="checkbox" aria-label="Accept Terms and Privacy Policy" onclick="toggle_button(event)">
-									<span>I have read and agree to the <a href="/terms" target="_blank">Terms of Use</a> and </span><a href="/privacy" target="_blank">Privacy Policy</a>.</p>
-								</div>
-
 								<div class="form-group text-center">
-									<button type="button" class="btn btn-primary get-started-button" disabled="">Get Started</button>
+									<button type="button" class="btn btn-primary get-started-button">NEXT</button>
 								</div>
 							</form>
 						</div>
-
 						<!-- Verify OTP -->
-						<!-- <div class="verify-otp hide">
-							<p>You will receive an verification code at registered email id <strong class="email"></strong>, asking you to verify this
+						<div class="verify-otp hide">
+							<p>You will receive an verification code at registered email id <strong
+									class="email"></strong>,
+								asking you to verify this
 								account request.</p>
 							<br>
 							<form class="otp-verification-details" role="form">
 								<div class="form-group text-center">
-									<input name="otp" placeholder="Please enter verification code here" id="otp" class="form-control" type="text">
+									<input name="otp" placeholder="Please enter verification code here" id="otp"
+										class="form-control" type="text">
 								</div>
 								<div class="form-group text-center">
-									<button class="btn btn-primary btn-request" type="button" style="min-width:250px;">Verify</button><br>
-									<button class="btn btn-default btn-resend-otp" type="button" style="min-width:250px; margin-top:10px;">Resend
+									<button class="btn btn-primary btn-request" type="button"
+										style="min-width:250px;">Verify</button><br>
+									<button class="btn btn-default btn-resend-otp" type="button"
+										style="min-width:250px; margin-top:10px;">Resend
 										Verification Code</button><br>
 								</div>
 							</form>
@@ -118,147 +164,277 @@
 							<p class="text-muted">It may take a few minutes before you receive this email.
 								If you don't find it, please check your SPAM folder.
 							</p>
-						</div> -->
-
-						<!-- Regional Settings/ Accounts Setup Section -->
-						<div class="regional-settings hide">
-							<form role="form">
-								<div class="form-group">
-									<p class="help-block">Country</p>
-									<select name="country" class="form-control">
-									{% for country in countries %}	
-										<option value={{country}}>{{country}}</option>
-									{% endfor %}
-									</select>
-									<p class="validation-message"></p>
-								</div>
-								<div class="form-group">
-									<p class="help-block">What does your organization do?</p>
-									<select name="industry_type" class="form-control">
-									{% for industry in industries %}	
-										<option value={{industry}}>{{industry}}</option>
-									{% endfor %}	
-									</select>
-									<p class="validation-message"></p>
-								</div>
-								<div class="form-group row">
-									<div class="col-md-6">
-										<p class="help-block">Currency</p>
-										<select name="currency" class="form-control">
-										{% for currency in currencies %}
-											<option value={{currency}}>{{currency}}</option>
-										{% endfor %}
-										</select>
-									</div>
-
-									<div class="col-md-6">
-										<p class="help-block">Language</p>
-										<select name="language" class="form-control">
-										{% for language in languages %}
-											<option value={{ language.language_code }}>{{ language.language_name }}</option>
-										{% endfor %}
-										</select>
-										<p class="validation-message"></p>
-									</div>
-								</div>
-								<div class="form-group">
-									<p class="help-block">Timezone</p>
-									<select name="timezone" class="form-control">
-									{% for timezone in timezones %}
-										<option value={{timezone}}>{{timezone}}</option>
-									{% endfor %}
-									</select>
-									<p class="validation-message"></p>
-								</div>
-								<div class="form-group text-center">
-									<button type="button" class="btn btn-primary account-setup-button">Next</button>
-								</div>
-							</form>
 						</div>
-
 						<!-- Other Meta Details -->
 						<div class="other-details hide">
 							<form role="form">
-								<div class="form-group">
-									<p class="help-block">Company Name</p>
-									<input type="text" name="company" class="form-control">
-									<p class="validation-message"></p>
+								<div class="form-group row">
+									<div class="col-md-6">
+										<p class="help-block">Number of Users</p>
+										<input name="number_of_users" placeholder="1" class="form-control" type="number"
+											min="1" max="20">
+										<p class="validation-message small">Please enter a valid number of users.</p>
+									</div>
+									<div class="col-md-6">
+										<p class="help-block">Currency</p>
+										<select name="currency" class="form-control">
+											<option value="USD">USD</option>
+											<option value="GBP">GBP</option>
+											<option value="INR">INR</option>
+											<option value="EUR">EUR</option>
+											<option value="CHF">CHF</option>
+											<option value="ZAR">ZAR</option>
+										</select>
+									</div>
 								</div>
 								<div class="form-group row">
 									<div class="col-md-6">
-										<p class="help-block">Expected Number of Users</p>
-										<input type="number" name="users" class="form-control" min="1">
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<label for="billing_cycle" class="input-group-text">Billing
+													Cycle</label>
+											</div>
+											<select id="billing_cycle" class="form-control">
+												{% for plan in plans.base_plans %}
+												<option value={{plan.name}}>{{plan.item_name}}</option>
+												{% endfor %}
+											</select>
+										</div>
 									</div>
-
 									<div class="col-md-6">
-										<p class="help-block">Your Designation</p>
-										<input type="text" name="designation" class="form-control">
-										<p class="validation-message"></p>
+										<div class="input-group mb-3">
+											<div class="input-group-prepend">
+												<label for="add_ons" class="input-group-text">Add Ons</label>
+											</div>
+											<select id="add_ons" class="form-control">
+												<option value="0">No Consulting</option>
+												{% for plan in plans.consulting_plans %}
+												<option value="{{plan.item_code}}">{{plan.item_name}} for {{ plan.price }}
+												</option>
+												{% endfor %}
+											</select>
+										</div>
 									</div>
 								</div>
 
-								<div class="form-group">
-									<p class="help-block">Where did you hear about ERPNext</p>
-									<select name="referral_source" class="form-control">
-										<option></option>
-										<option value="LinkedIn">LinkedIn</option>
-										<option value="Twitter">Twitter</option>
-										<option value="Recommended by a friend/ colleague">Recommended by a friend/ colleague</option>
-										<option value="Blogs/ Reviews">Blogs/ Reviews</option>
-										<option value="Others">Others</option>
-									</select>
-									<p class="validation-message"></p>
+								<div class="form-group row coupon">
+									<div class="col-md-12">
+										<h4>Got a coupon?</h4>
+									</div>
+									<div class="col-md-6">
+										<!-- <p class="help-block">Coupon Code</p> -->
+										<div class="input-group">
+											<input name="coupon"  class="form-control" type="text">
+											<p class="validation-message"></p>
+											<div class="form-group text-center">
+												<button type="button" class="btn btn-primary apply-code">Apply Code</button>
+											</div>
+										</div>
+									</div>
 								</div>
+								<div class="form-group row summary hidden">
+									<div class="col-md-12">
+										<h4>Summary</h4>
+									</div>
+									<div class="col-md-12">
+										<div class="row border-bottom text-muted">
+											<div class="col-1"></div>
+											<div class="col-4 py-2 px-3">Item</div>
+											<!---->
+											<div class="col-4 py-2 px-3  text-nowrap">
+												<span style="float: right;">Amount </span>
+											</div>
+											<div class="col-1"></div>
+										</div>
+										<div class="row">
+											<div class="col-1"></div>
+											<div class="col-4 py-2 px-3"> Billing Cycle </div>
+											<!---->
+											<div class="col-4 py-2 px-3 text-right text-nowrap billing"></div>
+											<!---->
+											<div class="col-1 d-flex justify-content-center align-items-center"></div>
+										</div>
+										<div class="row">
+											<div class="col-1"></div>
+											<div class="col-4 py-2 px-3">Add-Ons</div>
+											<!---->
+											<div class="col-4 py-2 px-3 text-right text-nowrap add-on"></div>
+											<!---->
+											<div class="col-1 d-flex justify-content-center align-items-center"></div>
+										</div>
+										<div class="row font-weight-bold border-top">
+											<div class="col-1"></div>
+											<div class="col-4 py-2 px-3">Total</div> 
+											<!----> 
+											<div class="col-4 py-2 px-3 text-right text-nowrap total"></div> 
+											<div class="col-1"></div>
+										</div>
+
+										<!-- <div class="input-group">
+										<div class="input-group-prepend">
+											<label for="plan-price" class="input-group-text">Billing Cost</label>
+										</div>
+										<span id="plan-price" name="plan-price"
+											class="form-control input-group-text">0RS</span>
+									</div> -->
+									</div>
+								</div>
+
+								<div class="form-group text-center mb-4 text-muted small">
+									<p><input name="agree-checkbox" type="checkbox"
+											aria-label="Accept Terms and Privacy Policy" onclick="toggle_button(event)">
+										<span>I have read and agree to the <a href="/terms" target="_blank">Terms of
+												Use</a>
+											and </span><a href="/privacy" target="_blank">Privacy Policy</a>.</p>
+								</div>
+
 								<div class="form-group text-center">
-									<button type="button" class="btn btn-primary other-settings-button">Next</button>
+									<button type="button" class="btn btn-primary get-started-button" disabled="">Get
+										Started</button>
 								</div>
 							</form>
 						</div>
 
-						<!-- Subscription Details -->
-						<div class="subscription hide">
-							<div class="form-group signup-subdomain">
-								<p class="help-block">Your Site Name <em class="small text-muted">(can only contain letters and numbers.)</em></p>
-								<div class="input-group">
-									<input name="subdomain" placeholder="mycompany" class="form-control" type="text">
-									<div class="input-group-append">
-										<span class="input-group-text">.erpnext.com</span>
-									</div>
+						<!-- Regional Settings/ Accounts Setup Section -->
+						<!-- <div class="regional-settings hide">
+											<form role="form">
+												<div class="form-group">
+													<p class="help-block">Country</p>
+													<select name="country" class="form-control">
+													{% for country in countries %}	
+														<option value={{country}}>{{country}}</option>
+													{% endfor %}
+													</select>
+													<p class="validation-message"></p>
+												</div>
+												<div class="form-group">
+													<p class="help-block">What does your organization do?</p>
+													<select name="industry_type" class="form-control">
+													{% for industry in industries %}	
+														<option value={{industry}}>{{industry}}</option>
+													{% endfor %}	
+													</select>
+													<p class="validation-message"></p>
+												</div>
+												<div class="form-group row">
+													<div class="col-md-6">
+														<p class="help-block">Currency</p>
+														<select name="currency" class="form-control">
+														{% for currency in currencies %}
+															<option value={{currency}}>{{currency}}</option>
+														{% endfor %}
+														</select>
+													</div>
+				
+													<div class="col-md-6">
+														<p class="help-block">Language</p>
+														<select name="language" class="form-control">
+														{% for language in languages %}
+															<option value={{ language.language_code }}>{{ language.language_name }}</option>
+														{% endfor %}
+														</select>
+														<p class="validation-message"></p>
+													</div>
+												</div>
+												<div class="form-group">
+													<p class="help-block">Timezone</p>
+													<select name="timezone" class="form-control">
+													{% for timezone in timezones %}
+														<option value={{timezone}}>{{timezone}}</option>
+													{% endfor %}
+													</select>
+													<p class="validation-message"></p>
+												</div>
+												<div class="form-group text-center">
+													<button type="button" class="btn btn-primary account-setup-button">Next</button>
+												</div>
+											</form>
+										</div> -->
+
+						<!-- Other Meta Details -->
+						<!-- <div class="other-details hide">
+						<form role="form">
+							<div class="form-group">
+								<p class="help-block">Company Name</p>
+								<input type="text" name="company" class="form-control">
+								<p class="validation-message"></p>
+							</div>
+							<div class="form-group row">
+								<div class="col-md-6">
+									<p class="help-block">Expected Number of Users</p>
+									<input type="number" name="users" class="form-control" min="1">
 								</div>
-								<div class="availability">
-									<span class="availability-status hidden"><i class="octicon octicon-check"></i><span></span></span>
-									<span class="availability-spinner small text-muted hidden">checking...</span>
+
+								<div class="col-md-6">
+									<p class="help-block">Your Designation</p>
+									<input type="text" name="designation" class="form-control">
+									<p class="validation-message"></p>
 								</div>
-								<p class="validation-message small"></p>
 							</div>
 
-							<div class="form-horizontal-group">
-								<!-- TODO: reenable these at the time of choice of subscription at the time of signup -->
-
-								<!-- <div class="form-group" style="margin-right: 15px;"> -->
-								<div class="form-group">
-									<p class="help-block">Number of Users</p>
-									<input name="number_of_users" placeholder="1" class="form-control" type="number">
-									<p class="validation-message small">Please enter a valid number of users.</p>
-								</div>
-
+							<div class="form-group">
+								<p class="help-block">Where did you hear about ERPNext</p>
+								<select name="referral_source" class="form-control">
+									<option></option>
+									<option value="LinkedIn">LinkedIn</option>
+									<option value="Twitter">Twitter</option>
+									<option value="Recommended by a friend/ colleague">Recommended by a friend/
+										colleague</option>
+									<option value="Blogs/ Reviews">Blogs/ Reviews</option>
+									<option value="Others">Others</option>
+								</select>
+								<p class="validation-message"></p>
 							</div>
-
 							<div class="form-group text-center">
-								<button class="btn btn-primary btn-request" type="button">Proceed
-									
-								</button>
+								<button type="button" class="btn btn-primary other-settings-button">Next</button>
 							</div>
+						</form>
+					</div> -->
+
+						<!-- Subscription Details -->
+						<!-- <div class="subscription hide">
+						<div class="form-group signup-subdomain">
+							<p class="help-block">Your Site Name <em class="small text-muted">(can only contain letters
+									and numbers.)</em></p>
+							<div class="input-group">
+								<input name="subdomain" placeholder="mycompany" class="form-control" type="text">
+								<div class="input-group-append">
+									<span class="input-group-text">.erpnext.com</span>
+								</div>
+							</div>
+							<div class="availability">
+								<span class="availability-status hidden"><i
+										class="octicon octicon-check"></i><span></span></span>
+								<span class="availability-spinner small text-muted hidden">checking...</span>
+							</div>
+							<p class="validation-message small"></p>
 						</div>
 
+						<div class="form-horizontal-group">
+							<div class="form-group">
+								<p class="help-block">Number of Users</p>
+								<input name="number_of_users" placeholder="1" class="form-control" type="number">
+								<p class="validation-message small">Please enter a valid number of users.</p>
+							</div>
+
+						</div>
+
+						<div class="form-group text-center">
+							<button class="btn btn-primary btn-request" type="button">Proceed
+
+							</button>
+						</div>
+					</div> -->
+
+					</div>
 				</div>
 			</div>
-		</div>
 
-	</div>
-</section>
+		</div>
+	</section>
+</div>
 {% endblock %}
 
 {% block script %}
-<!-- <script type="text/javascript" src="/assets/boski/js/signup.js"></script> -->
+<script type="text/javascript" src="signup.js"></script>
 {% endblock %}

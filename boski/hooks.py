@@ -21,7 +21,7 @@ app_include_js = [
 ]
 
 # include js, css files in header of web template
-# web_include_css = "/assets/boski/css/boski.css"
+web_include_css = "/assets/boski/css/boski-web.css"
 # web_include_js = "/assets/boski/js/boski.js"
 
 # include js in page

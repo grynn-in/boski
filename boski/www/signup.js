@@ -7,8 +7,8 @@ frappe.ready(function() {
     let $page = $('#page-signup, #page-signup-1');
 
     //setup route
-    //document.onload = checkLocationHash();
-    //window.onhashchange = changeRoute;
+    document.onload = checkLocationHash();
+    window.onhashchange = changeRoute;
 
     function getRoutingInfo(route) {
         for (var ii = 0; ii < route_map.length; ii++) {
@@ -97,6 +97,56 @@ frappe.ready(function() {
     }
     )
 
+    $page.find('.other-details').ready(function(){
+        console.log($page.find('input[name="number_of_users"]').val());
+        console.log($page.find('select[name="currency"]').val());
+        console.log($page.find('#billing_cycle').val());
+        console.log($page.find('#add_ons').val());
+        let users = $page.find('input[name="number_of_users"]').val();
+        let currency = $page.find('select[name="currency"]').val();
+        let billing_cycle = $page.find('#billing_cycle').val();
+        let add_ons = $page.find('#add_ons').val();
+        
+        get_total_cost($page);
+
+    })
+
+    $page.find('select[name="currency"]').on('change', ()=>{
+        get_total_cost($page);
+    })
+    $page.find('input[name="number_of_users"]').on('change', ()=>{
+        console.log("asd");
+        get_total_cost($page);
+    })
+    $page.find('#add_ons').on('change', ()=>{
+        get_total_cost($page);
+    })    
+    $page.find('#billing_cycle').on('change', ()=>{
+        get_total_cost($page);
+    })    
+
+    $page.find('.other-settings-button').on('click', ()=>{
+        if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
+
+            frappe.msgprint("All fields are necessary. Please try again.");
+            return false;
+        } else {
+            setup_other_details($page, changeRoute);
+        }
+    }
+    );
+
+    $page.find('.plan-select-button').on('click', ()=>{
+        if (!$page.find('select[name="currency"]').val() || !$page.find('input[name="users"]').val() /*|| !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()*/) {
+
+            frappe.msgprint("All fields are necessary. Please try again.");
+            return false;
+        } else {
+            setup_other_details($page, changeRoute);
+        }
+    }
+    );
+
     $page.find('.account-setup-button').on('click', ()=>{
         if (!$page.find('select[name="country"]').val() || !$page.find('select[name="industry_type"]').val() || !$page.find('select[name="currency"]').val() || !$page.find('select[name="language"]').val() || !$page.find('select[name="timezone"]').val()) {
 
@@ -119,91 +169,88 @@ frappe.ready(function() {
     }
     );
 
-    let plan_name = frappe.utils.get_query_params().plan;
+    // let plan_name = frappe.utils.get_query_params().plan;
 
-    if (plan_name) {
-        frappe.call({
-            method: 'erpnext_com.www.pricing.index.get_plan_details',
-            args: {
-                plan_name
-            },
-            callback: function(r) {
-                if (r.exc)
-                    return;
+    // if (plan_name) {
+    //     frappe.call({
+    //         method: 'erpnext_com.www.pricing.index.get_plan_details',
+    //         args: {
+    //             plan_name
+    //         },
+    //         callback: function(r) {
+    //             if (r.exc)
+    //                 return;
 
-                if (r.message) {
-                    plan = r.message
-                    window.plan = plan;
-                    let pricing = plan.pricing;
+    //             if (r.message) {
+    //                 plan = r.message
+    //                 window.plan = plan;
+    //                 let pricing = plan.pricing;
 
-                    $('.plan-name').html('ERPNext ' + plan_name.replace('P-', ''));
-                    $('.pricing-currency').html(pricing.symbol);
+    //                 $('.plan-name').html('ERPNext ' + plan_name.replace('P-', ''));
+    //                 $('.pricing-currency').html(pricing.symbol);
 
-                    $('.monthly-pricing, .total-cost').html(pricing.monthly_amount);
-                }
-            },
+    //                 $('.monthly-pricing, .total-cost').html(pricing.monthly_amount);
+    //             }
+    //         },
 
-        });
-    }
+    //     });
+    // }
 
-    frappe.call({
-        method: "central.www.signup.load_dropdowns",
-        callback: function(r) {
-            let $country_select = $("select[name*='country']");
-            r.message.countries.forEach(country_name=>{
-                $country_select.append($("<option />").val(country_name).text(country_name));
-            }
-            );
+//     frappe.call({
+//         method: "central.www.signup.load_dropdowns",
+//         callback: function(r) {
+//             let $country_select = $("select[name*='country']");
+//             r.message.countries.forEach(country_name=>{
+//                 $country_select.append($("<option />").val(country_name).text(country_name));
+//             }
+//             );
 
-            let $language_select = $("select[name*='language']");
-            r.message.languages.forEach(language=>{
-                //language[0] is for language code and language[1] is for language name
-                $language_select.append($("<option />").val(language[0]).text(language[1]));
-            }
-            );
+//             let $language_select = $("select[name*='language']");
+//             r.message.languages.forEach(language=>{
+//                 //language[0] is for language code and language[1] is for language name
+//                 $language_select.append($("<option />").val(language[0]).text(language[1]));
+//             }
+//             );
 
-            let $timezone_select = $("select[name*='timezone']");
-            r.message.all_timezones.forEach(timezone=>{
-                $timezone_select.append($("<option />").val(timezone).text(timezone));
-            }
-            );
+//             let $timezone_select = $("select[name*='timezone']");
+//             r.message.all_timezones.forEach(timezone=>{
+//                 $timezone_select.append($("<option />").val(timezone).text(timezone));
+//             }
+//             );
 
-            let $currency_select = $("select[name*='currency']");
-            r.message.currencies.forEach(currency=>{
-                $currency_select.append($("<option />").val(currency).text(currency));
-            }
-            );
+//             let $currency_select = $("select[name*='currency']");
+//             r.message.currencies.forEach(currency=>{
+//                 $currency_select.append($("<option />").val(currency).text(currency));
+//             }
+//             );
 
-            let country_info = r.message.country_info;
+//             let country_info = r.message.country_info;
 
-            $country_select.on('change', function() {
-                let country = $(this).val();
-                $timezone_select.val(country_info[country].timezones[0]);
-                $currency_select.val(country_info[country].currency);
-            });
+//             $country_select.on('change', function() {
+//                 let country = $(this).val();
+//                 $timezone_select.val(country_info[country].timezones[0]);
+//                 $currency_select.val(country_info[country].currency);
+//             });
 
-            $language_select.val('en');
-            if (r.message.default_country) {
-                $country_select.val(r.message.default_country);
-            } else {
-                $country_select.val('India');
-            }
-            $country_select.trigger('change');
-        }
-    });
+//             $language_select.val('en');
+//             if (r.message.default_country) {
+//                 $country_select.val(r.message.default_country);
+//             } else {
+//                 $country_select.val('India');
+//             }
+//             $country_select.trigger('change');
+//         }
+//     });
 
 });
 
 const route_map = [{
     route: "#verify",
     element: ".verify-otp"
-}, {
+},{
     route: "#personal-details",
     element: ".personal-info"
-}, {
-    route: "#account-setup",
-    element: ".regional-settings"
-}, {
+},{
     route: "#other-details",
     element: ".other-details"
 }]
@@ -227,7 +274,7 @@ setup_signup = function(page) {
 
             $('.number_of_users').html(number_of_users);
             $('.user-text').html(number_of_users > 1 ? 'users' : 'user');
-            $('.total-cost').html((plan.pricing.monthly_amount * number_of_users).toFixed(0));
+            // $('.total-cost').html((plan.pricing.monthly_amount * number_of_users).toFixed(0));
         }
     });
 
@@ -283,7 +330,7 @@ setup_signup = function(page) {
 
             page.find('.availability-status').removeClass('text-danger');
             page.find('.availability-status').addClass('text-success');
-            page.find('.availability-status span').html(`${subdomain}.erpnext.com is available!`);
+            page.find('.availability-status span').html(`${subdomain}.grr.fyi is available!`);
         } else {
             // not available state
             page.find('.availability-status i').removeClass('octicon-check text-success');
@@ -291,7 +338,7 @@ setup_signup = function(page) {
 
             page.find('.availability-status').removeClass('text-success');
             page.find('.availability-status').addClass('text-danger');
-            page.find('.availability-status span').html(`${subdomain}.erpnext.com is already taken.`);
+            page.find('.availability-status span').html(`${subdomain}.grr.fyi is already taken.`);
         }
     }
 
@@ -328,9 +375,9 @@ setup_signup = function(page) {
     function check_if_available(subdomain, callback) {
         setTimeout(function() {
             frappe.call({
-                method: 'central.www.signup.check_subdomain_availability',
+                method: 'boski.utils.boski.check_site_name',
                 args: {
-                    subdomain: subdomain
+                    site: subdomain
                 },
                 type: 'POST',
                 callback: function(r) {
@@ -344,39 +391,39 @@ setup_signup = function(page) {
         }, 2000);
     }
 
-    var query_params = frappe.utils.get_query_params();
-    if (!query_params.plan) {
-        // redirect to pricing page
-        var url = window.erpnext_signup.distribution == 'schools' ? "/schools/pricing" : '/pricing';
-        window.location.href = url + '?' + $.param(query_params)
+    // var query_params = frappe.utils.get_query_params();
+    // if (!query_params.plan) {
+    //     // redirect to pricing page
+    //     var url = window.erpnext_signup.distribution == 'schools' ? "/schools/pricing" : '/pricing';
+    //     window.location.href = url + '?' + $.param(query_params)
 
-    } else {
-        if (query_params.for_mobile_app) {
-            // for mobile app singup, hide header and footer
-            $("header,footer").addClass("hidden");
-        }
+    // } else {
+    //     if (query_params.for_mobile_app) {
+    //         // for mobile app singup, hide header and footer
+    //         $("header,footer").addClass("hidden");
+    //     }
 
-        $('.plan-name').html(query_params.plan);
-    }
+    //     $('.plan-name').html(query_params.plan);
+    // }
 
-    page.find(".plan-message").text("Free 14-day Trial");
+    // page.find(".plan-message").text("Free 14-day Trial");
 
     // if (['Free', 'Free-Solo'].indexOf(query_params.plan)!==-1) {
     // 		// keeping Free-Solo for backward compatibility
     // 		page.find(".plan-message").text("Free for 1 User");
     // 	}
 
-    $('.domain-missing-msg').addClass("hidden");
-    if (query_params.domain) {
-        var subdomain = query_params.domain;
-        if (subdomain.indexOf(".erpnext.com")) {
-            subdomain = subdomain.replace(".erpnext.com", "");
-        }
-        $('[name="subdomain"]').val(subdomain);
+    // $('.domain-missing-msg').addClass("hidden");
+    // if (query_params.domain) {
+    //     var subdomain = query_params.domain;
+    //     if (subdomain.indexOf(".erpnext.com")) {
+    //         subdomain = subdomain.replace(".erpnext.com", "");
+    //     }
+    //     $('[name="subdomain"]').val(subdomain);
 
-        $('.missing-domain').html(query_params.domain);
-        $('.missing-domain-msg').removeClass("hidden");
-    }
+    //     $('.missing-domain').html(query_params.domain);
+    //     $('.missing-domain-msg').removeClass("hidden");
+    // }
 
     window.clear_timeout = function() {
         if (window.timout_password_strength) {
@@ -472,7 +519,6 @@ function setup_account_request($page, changeRoute) {
             return acc;
         }
         , {});
-
         // validate inputs
         const validations = Array.from($page.find('.form-group.invalid')).map(form_group=>$(form_group).find('.validation-message').html());
         if (validations.length > 0) {
@@ -480,19 +526,19 @@ function setup_account_request($page, changeRoute) {
             return;
         }
 
-        if ($("input[name*='agree-checkbox']").prop("checked") === false) {
-            frappe.msgprint("Please agree to the Terms of Use and Privacy Policy.");
-            return;
-        }
+        // if ($("input[name*='agree-checkbox']").prop("checked") === false) {
+        //     frappe.msgprint("Please agree to the Terms of Use and Privacy Policy.");
+        //     return;
+        // }
 
         // add plan to args
-        var plan = frappe.utils.get_url_arg('plan');
-        if (plan)
-            args.plan = plan;
+        // var plan = frappe.utils.get_url_arg('plan');
+        // if (plan)
+        //     args.plan = plan;
 
-        var res = frappe.utils.get_url_arg('res');
-        if (res)
-            args.partner = res;
+        // var res = frappe.utils.get_url_arg('res');
+        // if (res)
+        //     args.partner = res;
 
         // args.distribution = window.erpnext_signup.distribution;
 
@@ -500,13 +546,14 @@ function setup_account_request($page, changeRoute) {
         var btn_html = $btn.html();
         $btn.prop("disabled", true).html("Sending details...");
 
-        goog_report_conversion();
+        // goog_report_conversion();
         // eslint-disable-line
 
-        delete args['agree-checkbox'];
-
+        // delete args['agree-checkbox'];
+        
+        console.log(args);
         frappe.call({
-            method: 'central.www.signup.signup',
+            method: 'boski.www.signup.signup',
             args: args,
             type: 'POST',
             btn: $btn,
@@ -543,6 +590,7 @@ function verify_otp($page, changeRoute) {
         return acc;
     }
     , {});
+    console.log(args);
     args['id'] = localStorage.getItem("reference");
 
     var $btn = $page.find('.btn-request');
@@ -550,7 +598,7 @@ function verify_otp($page, changeRoute) {
     $btn.prop("disabled", true).html("Verifying details...");
 
     frappe.call({
-        method: 'central.www.prepare_site.verify_account_request',
+        method: 'boski.www.signup.verify_otp',
         args: args,
         type: 'POST',
         btn: $btn,
@@ -662,4 +710,42 @@ function toggle_button(event) {
     let button = $(".get-started-button");
     button.prop("disabled", !event.target.checked);
     ;
+}
+
+function get_total_cost($page){
+    let users = $page.find('input[name="number_of_users"]').val();
+    let currency = $page.find('select[name="currency"]').val();
+    let billing_cycle = $page.find('#billing_cycle').val();
+    let add_ons = $page.find('#add_ons').val();
+    
+    let args = {};
+    args['users'] = users;
+    args['currency'] = currency;
+    args['billing_cycle'] = billing_cycle;
+    args['add_ons'] = add_ons;
+    console.log(args);
+    
+    frappe.call({
+        method: 'boski.www.signup.get_total_cost',
+        args: args,
+        type: 'POST',
+        // btn: $btn,
+        callback: function(r) {
+            if (r.exc)
+                return;
+            console.log(r);
+            $page.find('.summary').removeClass('hidden');
+            if (r.message.billing_cost) {
+                $('.billing').text(r.message.billing_cost);
+            }
+            if (r.message.add_on) {
+                $('.add-on').text(r.message.add_on);
+            }
+            if (r.message.total_cost) {
+                $('.total').text(r.message.total_cost);
+            }
+        },
+    }).always(function() {
+        // $btn.prop("disabled", false).html(btn_html);
+    });
 }
