@@ -17,7 +17,8 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/boski/css/boski.css"
 app_include_js = [
-        "/assets/boski/js/boski.js"
+        "/assets/boski/js/boski.js",
+        "/assets/boski/js/boski_manager.js"
 ]
 
 # include js, css files in header of web template

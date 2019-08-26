@@ -5,7 +5,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import fmt_money, random_string, cint
+from frappe.utils import fmt_money, random_string, cint, nowdate
 from frappe.geo.country_info import get_country_timezone_info
 
 class ExpiredTokenException(Exception): pass
@@ -170,17 +170,41 @@ def update_account(email, users=None, currency=None, billing=None, add_on=None):
     
 
 @frappe.whitelist(allow_guest=True)
-def get_total_cost(users, currency, billing_cycle, add_ons):
-    print(type(add_ons)) 
+def get_total_cost(users, currency, billing_cycle, add_ons, coupon=None):
+    # print(type(add_ons)) 
+
     billing_cycle_price = frappe.get_value("Item Price",{"item_code": billing_cycle, "currency":currency, "selling": 1},"price_list_rate")
     add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
-    print(billing_cycle_price, add_on_price)
+    # print(billing_cycle_price, add_on_price)
+
     total_cost = (billing_cycle_price * cint(users)) + add_on_price
+
+    if coupon and frappe.db.exists("Coupon", coupon):
+        total_cost = apply_code(coupon, total_cost, currency)
+
+    # else:
+    #     total_cost = (billing_cycle_price * cint(users)) + add_on_price
+
     formatted_billing_price = (fmt_money((billing_cycle_price * cint(users)), currency=currency)).replace("'", ",")
     formatted_add_on_price = (fmt_money(add_on_price, currency=currency)).replace("'",",")
     formatted_total_cost = (fmt_money(total_cost, currency=currency)).replace("'",",")
+
     return {
         "billing_cost": formatted_billing_price,
         "add_on" : formatted_add_on_price,
         "total_cost" : formatted_total_cost 
     }
+
+
+def apply_code(coupon, cost_without_coupon, currency):
+    validity_date, discount_rate, max_discount = frappe.get_value("Coupon",{"name":coupon}, ["valid_till", "discount_percent", "maximum_discount_amount"])
+    
+    if validity_date.strftime("%Y-%m-%d") < nowdate():
+        frappe.throw(_("Coupon has expired."))
+    total_cost = 0
+    discount_amount = (cost_without_coupon * discount_rate) / 100
+    if discount_amount >= max_discount:
+        total_cost = cost_without_coupon - max_discount
+    else:
+        total_cost = cost_without_coupon - discount_amount
+    return total_cost

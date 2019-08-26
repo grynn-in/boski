@@ -14,23 +14,25 @@ from pathlib import Path
 from subprocess import Popen, PIPE, STDOUT
 import re, shlex
 import time
+from frappe.utils.background_jobs import enqueue
 
 @frappe.whitelist()
-def boski_manager(email):
+def boski_manager(email, key):
         commands = []
         doc = frappe.get_doc("Customer", {"email": email})
         if(doc.domain):
                 domain = (str(doc.domain)+".grr.fyi")
                 installable_apps = get_installable_apps()
-                admin_password = doc.password
-                mysql_root_password = "grynn@999"
+                admin_password = frappe.generate_hash()
+                mysql_root_password = get_verify_password()
                 commands = ["bench new-site --mariadb-root-password {mysql_password} --admin-password {admin_password} {site_name}".format(site_name=domain, admin_password=admin_password, mysql_password=mysql_root_password)]
                 
                 if('erpnext' not in installable_apps):
                         commands.append("bench get-app erpnext")
                 commands.append("bench --site {site_name} install-app erpnext".format(site_name=domain))
                 commands.append("bench setup add-domain --site {site_name} {site_name}".format(site_name=domain))
-                boski_command_manage(commands, domain)
+                commands.append("bench --site {site_name} enable-scheduler".format(site_name=domain))
+                frappe.enqueue('boski.utils.boski.boski_command_manager', key=key, commands=commands, site_name=domain, password=admin_password, email=doc.email)
         else:
                 frappe.throw(_("Kindly Provide Domain Name."))
 
@@ -61,21 +63,34 @@ def get_verify_password():
                 frappe.throw(_("Password file not found."))
 
 
-def boski_command_manage(commands, site_name):
+def boski_command_manager(key, commands, site_name, password, email):
         log_commands = " && ".join(commands)
-        key = "installing"
+        frappe.publish_realtime(key, "Sit Tight With US and Feel the GRYNN Magic...!!!\n\n\n", user=frappe.session.user)
+        frappe.publish_realtime(key, "Getting Ready:\n\n", user=frappe.session.user)
         try:
                 for command in commands:
                         terminal = Popen(shlex.split(command), stdin=PIPE, stdout=PIPE, stderr=STDOUT, cwd="..")
                         for c in iter(lambda: safe_decode(terminal.stdout.read(1)), ''):
+                                print(c)
                                 frappe.publish_realtime(key, c, user=frappe.session.user)
 
                 if terminal.wait():
                         frappe.msgprint(_("Process Failed."))
                 else:
                         frappe.msgprint(_("Process Successful."))
+                        frappe.publish_realtime(key, "\n\nYour Site is Ready. Thanks For Choosing GRYNN...!!!", user=frappe.session.user)
+                        try:
+                                msg = ("Hey, \n\n Thanks for choosing GRYNN. Your Domain {site_name} is now ready. Password for your Domain is {password}.\n\nThanks & Regards,\n\nGRYNN".format(site_name=site_name, password=password))
+                                email_args = {
+                                            "recipients": [email],
+                                            "subject": "Your Domain is Ready",
+                                            "message": msg
+                                }
+                                enqueue(method=frappe.sendmail, queue='short', timeout=300, async=True, **email_args)
+                        except Exception as e:
+                                frappe.throw(_("{0}").format(e))
         except Exception as e:
-                frappe.throw(_("Kindly contact to admin with the error screen shot. {0}").fprmat(e))
+                frappe.throw(_("Kindly contact to admin with the error screen shot. {0}").format(e))
 
 
 @frappe.whitelist(allow_guest=True)

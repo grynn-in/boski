@@ -125,6 +125,9 @@ frappe.ready(function() {
         get_total_cost($page);
     })    
 
+    $page.find('.apply-code').on('click', ()=>{
+        get_total_cost($page);
+    })
     $page.find('.other-settings-button').on('click', ()=>{
         if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
 
@@ -285,7 +288,7 @@ setup_signup = function(page) {
         var $this = $(this);
         clearTimeout($this.data('timeout'));
         $this.data('timeout', setTimeout(function() {
-            let subdomain = $this.val();
+            let subdomain = $this.val().toLowerCase();
             set_availability_status('empty');
             if (subdomain.length === 0) {
                 return;
@@ -717,12 +720,14 @@ function get_total_cost($page){
     let currency = $page.find('select[name="currency"]').val();
     let billing_cycle = $page.find('#billing_cycle').val();
     let add_ons = $page.find('#add_ons').val();
+    let coupon = $page.find('input[name="coupon"]').val() || "";
     
     let args = {};
     args['users'] = users;
     args['currency'] = currency;
     args['billing_cycle'] = billing_cycle;
     args['add_ons'] = add_ons;
+    args['coupon'] = coupon;
     console.log(args);
     
     frappe.call({
