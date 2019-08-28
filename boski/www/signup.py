@@ -7,6 +7,7 @@ import frappe
 from frappe import _
 from frappe.utils import fmt_money, random_string, cint, nowdate
 from frappe.geo.country_info import get_country_timezone_info
+import json
 
 class ExpiredTokenException(Exception): pass
 
@@ -49,7 +50,8 @@ def get_timezones():
     all_timezones = all_timezones["all_timezones"]
     return all_timezones
 
-def get_plans():
+@frappe.whitelist(allow_guest=True)
+def get_plans(currency=None):
     base_features = {
 			'emails': '1000 emails / month',
 			'space': '1 GB'
@@ -61,7 +63,7 @@ def get_plans():
     consulting_plans = []
 
     for plan in all_plans:    
-        plan_price = get_plan_price(plan.item_code, "USD")
+        plan_price = get_plan_price(plan.item_code, currency or "USD")
         plan.update({
             "price": plan_price
         })
@@ -171,40 +173,83 @@ def update_account(email, users=None, currency=None, billing=None, add_on=None):
 
 @frappe.whitelist(allow_guest=True)
 def get_total_cost(users, currency, billing_cycle, add_ons, coupon=None):
-    # print(type(add_ons)) 
+    print(users, currency, billing_cycle, add_ons, coupon) 
 
     billing_cycle_price = frappe.get_value("Item Price",{"item_code": billing_cycle, "currency":currency, "selling": 1},"price_list_rate")
     add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
-    # print(billing_cycle_price, add_on_price)
+    print(billing_cycle_price, add_on_price)
 
-    total_cost = (billing_cycle_price * cint(users)) + add_on_price
-
+    total_cost = (billing_cycle_price * cint(users)) + (add_on_price or 0)
+    discount = 0
     if coupon and frappe.db.exists("Coupon", coupon):
-        total_cost = apply_code(coupon, total_cost, currency)
-
-    # else:
-    #     total_cost = (billing_cycle_price * cint(users)) + add_on_price
+        total_cost, discount = apply_code(coupon, total_cost, currency)
 
     formatted_billing_price = (fmt_money((billing_cycle_price * cint(users)), currency=currency)).replace("'", ",")
     formatted_add_on_price = (fmt_money(add_on_price, currency=currency)).replace("'",",")
     formatted_total_cost = (fmt_money(total_cost, currency=currency)).replace("'",",")
+    formatted_discount = (fmt_money(discount, currency=currency)).replace("'",",")
 
     return {
         "billing_cost": formatted_billing_price,
         "add_on" : formatted_add_on_price,
-        "total_cost" : formatted_total_cost 
+        "total_cost" : formatted_total_cost, 
+        "discount": formatted_discount
     }
 
 
 def apply_code(coupon, cost_without_coupon, currency):
-    validity_date, discount_rate, max_discount = frappe.get_value("Coupon",{"name":coupon}, ["valid_till", "discount_percent", "maximum_discount_amount"])
-    
-    if validity_date.strftime("%Y-%m-%d") < nowdate():
+    validity_date, discount_rate, max_discount, times_used = frappe.get_value("Coupon", 
+        {"name": coupon}, ["valid_till", "discount_percent", "maximum_discount_amount", "used"])
+
+    if validity_date.strftime("%Y-%m-%d") < nowdate() and cint(times_used) >= 100:
         frappe.throw(_("Coupon has expired."))
     total_cost = 0
     discount_amount = (cost_without_coupon * discount_rate) / 100
     if discount_amount >= max_discount:
         total_cost = cost_without_coupon - max_discount
+        return [total_cost, max_discount]
     else:
         total_cost = cost_without_coupon - discount_amount
-    return total_cost
+        return [total_cost, discount_amount]
+    
+@frappe.whitelist(allow_guest=True)
+def make_sales_order(args):
+    args = json.loads(args)
+    users, currency, billing_cycle, add_ons, coupon, email = args['users'], args['currency'], args['billing_cycle'],args['add_ons'],args['coupon'],args['email']
+    price_list = frappe.get_value("Price List", {"currency": currency, "selling": 1, "enabled": 1})
+
+    billing_cycle_price = frappe.get_value("Item Price",{"item_code": billing_cycle, "currency":currency, "selling": 1},"price_list_rate")
+    add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
+
+
+    total_cost = (billing_cycle_price * cint(users)) + (add_on_price or 0)
+    discount = 0
+
+    if coupon:
+        total_cost, discount = apply_code(coupon, total_cost, currency) 
+
+    customer = frappe.get_value("Customer", {"email": email })
+    sales_order = frappe.new_doc("Sales Order")
+    sales_order.customer = customer
+    sales_order.currency = currency
+    sales_order.delivery_date = nowdate()
+    sales_order.selling_price_list = price_list
+    sales_order.discount_amount = discount
+    
+    if billing_cycle:
+        sales_order.append("items",{
+            "item_code": billing_cycle,
+			"item_name": billing_cycle,
+            "qty": cint(users),
+            "delivery_date": nowdate()
+        })
+
+    if add_ons and add_ons != "0":
+        sales_order.append("items",{
+            "item_code": add_ons,
+			"item_name": add_ons,
+            "qty": 1,
+            "delivery_date": nowdate()    
+        })
+    sales_order.insert(ignore_permissions=True)
+    sales_order.submit()    

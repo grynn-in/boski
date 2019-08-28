@@ -96,6 +96,11 @@ frappe.ready(function() {
         resend_otp($page);
     }
     )
+    
+    $page.find('.initiate').on('click', ()=>{
+        initiate($page);
+    }
+    );
 
     $page.find('.other-details').ready(function(){
         console.log($page.find('input[name="number_of_users"]').val());
@@ -545,9 +550,6 @@ function setup_account_request($page, changeRoute) {
 
         // args.distribution = window.erpnext_signup.distribution;
 
-        var $btn = $page.find('.get-started-button');
-        var btn_html = $btn.html();
-        $btn.prop("disabled", true).html("Sending details...");
 
         // goog_report_conversion();
         // eslint-disable-line
@@ -589,7 +591,7 @@ function verify_otp($page, changeRoute) {
     }
 
     var args = Array.from($page.find('.verify-otp form input')).reduce((acc,input)=>{
-        acc[$(input).attr('name')] = $(input).val();
+        acc[$(input).attr('name')] = $(input).val().trim();
         return acc;
     }
     , {});
@@ -710,12 +712,12 @@ window.erpnext_signup = {
 }
 
 function toggle_button(event) {
-    let button = $(".get-started-button");
+    let button = $(".initiate");
     button.prop("disabled", !event.target.checked);
     ;
 }
 
-function get_total_cost($page){
+function get_args($page){
     let users = $page.find('input[name="number_of_users"]').val();
     let currency = $page.find('select[name="currency"]').val();
     let billing_cycle = $page.find('#billing_cycle').val();
@@ -728,7 +730,13 @@ function get_total_cost($page){
     args['billing_cycle'] = billing_cycle;
     args['add_ons'] = add_ons;
     args['coupon'] = coupon;
+    args['email'] = localStorage.getItem('email')
     console.log(args);
+    return args;
+}
+
+function get_total_cost($page){
+    let args = get_args($page);
     
     frappe.call({
         method: 'boski.www.signup.get_total_cost',
@@ -742,13 +750,41 @@ function get_total_cost($page){
             $page.find('.summary').removeClass('hidden');
             if (r.message.billing_cost) {
                 $('.billing').text(r.message.billing_cost);
+                $('.billing-plan').text($page.find('#billing_cycle option:selected').text());
+
             }
             if (r.message.add_on) {
                 $('.add-on').text(r.message.add_on);
+                $('.addon-name').text($page.find('#add_ons option:selected').text());
             }
             if (r.message.total_cost) {
                 $('.total').text(r.message.total_cost);
             }
+            if (r.message.discount) {
+                $('.discount').text(r.message.discount);
+            }
+        },
+    }).always(function() {
+        // $btn.prop("disabled", false).html(btn_html);
+    });
+}
+
+function initiate($page){
+    let args = get_args($page);
+    console.log(args);
+    var $btn = $page.find('.get-started-button');
+    var btn_html = $btn.html();
+    $btn.prop("disabled", true).html("Sending details...");
+
+    frappe.call({
+        method: 'boski.www.signup.make_sales_order',
+        args: {args},
+        type: 'POST',
+        // btn: $btn,
+        callback: function(r) {
+            if (r.exc)
+                return;
+            console.log(r);
         },
     }).always(function() {
         // $btn.prop("disabled", false).html(btn_html);
