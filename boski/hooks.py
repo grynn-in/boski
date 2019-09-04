@@ -23,7 +23,7 @@ app_include_js = [
 
 # include js, css files in header of web template
 web_include_css = "/assets/boski/css/boski-web.css"
-# web_include_js = "/assets/boski/js/boski.js"
+web_include_js = "/assets/boski/js/boski_manager.js"
 
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
@@ -82,13 +82,11 @@ web_include_css = "/assets/boski/css/boski-web.css"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+ 	"Payment Entry": {
+ 		"on_submit": "boski.whitelisted.after_submit"
+	}
+}
 
 # Scheduled Tasks
 # ---------------

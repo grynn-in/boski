@@ -15,15 +15,16 @@ from subprocess import Popen, PIPE, STDOUT
 import re, shlex
 import time
 from frappe.utils.background_jobs import enqueue
+from frappe.utils import fmt_money, random_string, cint, nowdate
 
 @frappe.whitelist()
-def boski_manager(email, key):
+def boski_manager(name, key, allow_guest=True):
         commands = []
-        doc = frappe.get_doc("Customer", {"email": email})
+        doc = frappe.get_doc("Customer", {"name": name})
         if(doc.domain):
                 domain = (str(doc.domain)+".grr.fyi")
                 installable_apps = get_installable_apps()
-                admin_password = frappe.generate_hash()
+                admin_password = random_string(6)
                 mysql_root_password = get_verify_password()
                 commands = ["bench new-site --mariadb-root-password {mysql_password} --admin-password {admin_password} {site_name}".format(site_name=domain, admin_password=admin_password, mysql_password=mysql_root_password)]
                 
@@ -32,6 +33,7 @@ def boski_manager(email, key):
                 commands.append("bench --site {site_name} install-app erpnext".format(site_name=domain))
                 commands.append("bench setup add-domain --site {site_name} {site_name}".format(site_name=domain))
                 commands.append("bench --site {site_name} enable-scheduler".format(site_name=domain))
+                commands.append("bench --site {site_name} set-limits --limit users {user}".format(site_name=domain, user=int(doc.users)))
                 frappe.enqueue('boski.utils.boski.boski_command_manager', key=key, commands=commands, site_name=domain, password=admin_password, email=doc.email)
         else:
                 frappe.throw(_("Kindly Provide Domain Name."))
@@ -80,7 +82,21 @@ def boski_command_manager(key, commands, site_name, password, email):
                         frappe.msgprint(_("Process Successful."))
                         frappe.publish_realtime(key, "\n\nYour Site is Ready. Thanks For Choosing GRYNN...!!!", user=frappe.session.user)
                         try:
-                                msg = ("Hey, \n\n Thanks for choosing GRYNN. Your Domain {site_name} is now ready. Password for your Domain is {password}.\n\nThanks & Regards,\n\nGRYNN".format(site_name=site_name, password=password))
+                                msg = """<div>
+                                        Hey,
+                                        <br><br>
+                                        Thanks for choosing GRYNN. <br><br>
+                                        {site_name} is now ready. <br><br>
+                                        Login with user <b>Administrator</b>.<br><br>
+                                        <b>Password</b>is {password} .<br><br>
+                                        Thanks & Regards,
+                                        <br><br>
+                                        Cheers,
+                                        <br><br>
+                                        GRYNN Team
+                                        </div>
+                                        """.format(site_name=site_name, password=password)
+                                
                                 email_args = {
                                             "recipients": [email],
                                             "subject": "Your Domain is Ready",

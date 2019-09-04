@@ -506,7 +506,7 @@ setup_signup = function(page) {
 ;
 
 function setup_account_request($page, changeRoute) {
-    if (!$page.find('input[name="first_name"]').val() || !$page.find('input[name="last_name"]').val() || !$page.find('input[name="email"]').val() || !$page.find('input[name="passphrase"]').val()) {
+    if (!$page.find('input[name="first_name"]').val() || !$page.find('input[name="last_name"]').val() || !$page.find('input[name="email"]').val() /*|| !$page.find('input[name="passphrase"]').val()*/) {
 
         frappe.msgprint("All fields are necessary. Please try again.");
         return false;
@@ -561,7 +561,7 @@ function setup_account_request($page, changeRoute) {
             method: 'boski.www.signup.signup',
             args: args,
             type: 'POST',
-            btn: $btn,
+            // btn: $btn,
             callback: function(r) {
                 if (r.exc)
                     return;
@@ -576,7 +576,7 @@ function setup_account_request($page, changeRoute) {
             },
 
         }).always(function() {
-            $btn.prop("disabled", false).html(btn_html);
+            // $btn.prop("disabled", false).html(btn_html);
         });
 
         return false;
@@ -777,7 +777,7 @@ function initiate($page){
     $btn.prop("disabled", true).html("Sending details...");
 
     frappe.call({
-        method: 'boski.www.signup.make_sales_order',
+        method: 'boski.www.signup.register',
         args: {args},
         type: 'POST',
         // btn: $btn,
@@ -785,6 +785,7 @@ function initiate($page){
             if (r.exc)
                 return;
             console.log(r);
+            window.location.href = r.message;
         },
     }).always(function() {
         // $btn.prop("disabled", false).html(btn_html);

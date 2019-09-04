@@ -10,7 +10,8 @@
   "column_break_3",
   "discount_percent",
   "maximum_discount_amount",
-  "used"
+  "used",
+  "max_usage"
  ],
  "fields": [
   {
@@ -38,8 +39,7 @@
   {
    "fieldname": "maximum_discount_amount",
    "fieldtype": "Currency",
-   "label": "Maximum Discount Amount",
-   "options": "Company:company:default_currency"
+   "label": "Maximum Discount Amount in Company Currency"
   },
   {
    "fieldname": "used",
@@ -47,9 +47,14 @@
    "hidden": 1,
    "label": "Used",
    "read_only": 1
+  },
+  {
+   "fieldname": "max_usage",
+   "fieldtype": "Data",
+   "label": "Maximum Usage in Number"
   }
  ],
- "modified": "2019-08-21 16:57:59.171864",
+ "modified": "2019-09-03 19:28:21.688106",
  "modified_by": "Administrator",
  "module": "Boski",
  "name": "Coupon",

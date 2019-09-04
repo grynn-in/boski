@@ -1,5 +1,3 @@
-// Copyright (c) 2017, Frappé and contributors
-// For license information, please see license.txt
 
 var boski_console = (key) => {
 	var dialog = new frappe.ui.Dialog({
