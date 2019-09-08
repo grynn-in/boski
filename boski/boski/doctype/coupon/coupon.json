@@ -7,8 +7,8 @@
  "field_order": [
   "code",
   "valid_till",
-  "column_break_3",
   "discount_percent",
+  "column_break_3",
   "maximum_discount_amount",
   "used",
   "max_usage"
@@ -43,18 +43,17 @@
   },
   {
    "fieldname": "used",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Used",
+   "fieldtype": "Int",
+   "label": "Times Used",
    "read_only": 1
   },
   {
    "fieldname": "max_usage",
-   "fieldtype": "Data",
-   "label": "Maximum Usage in Number"
+   "fieldtype": "Int",
+   "label": "Maximum Allowed Usage in Number"
   }
  ],
- "modified": "2019-09-03 19:28:21.688106",
+ "modified": "2019-09-06 21:31:21.260825",
  "modified_by": "Administrator",
  "module": "Boski",
  "name": "Coupon",

@@ -55,8 +55,8 @@ h6 {
 }
 
 .stage.completed::after {
-  border: 5px solid #e1e7eb;
-  background: #615fff;
+  border: 5px solid #1c0c8e;
+  background: #1c0c8e;
 }
 
 .stage-container {

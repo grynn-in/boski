@@ -10,6 +10,7 @@ from frappe.geo.country_info import get_country_timezone_info
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 from erpnext.accounts.doctype.payment_request.payment_request import make_payment_request
 from frappe.integrations.utils import get_payment_gateway_controller
+from boski.utils.boski import check_site_name
 import json
 
 payment_gateway = {
@@ -69,24 +70,24 @@ def get_plans(currency=None):
 			'space': '1 GB'
 	}
     
-    all_plans = frappe.db.sql('select item_name, item_code, name, consulting_item from tabItem order by name desc', as_dict=True)
+    all_plans = frappe.db.sql('select item_name, item_code, name from tabItem where consulting_item=0 order by name desc', as_dict=True)
 
     base_plans = []
-    consulting_plans = []
+    # consulting_plans = []
 
     for plan in all_plans:    
         plan_price = get_plan_price(plan.item_code, currency or "USD")
         plan.update({
             "price": plan_price
         })
-        if not plan.consulting_item:
-            base_plans.append(plan)
-        else:
-            consulting_plans.append(plan)
+        # if not plan.consulting_item:
+        base_plans.append(plan)
+        # else:
+            # consulting_plans.append(plan)
     print(base_plans)
     return {
         "base_plans": base_plans,
-        "consulting_plans": consulting_plans,
+        # "consulting_plans": consulting_plans,
         "base_features": base_features
     }
 
@@ -99,6 +100,8 @@ def get_plan_price(item_code, currency):
 
 @frappe.whitelist(allow_guest=True)
 def signup(cmd, email, first_name, last_name, subdomain):
+    if check_site_name(subdomain):
+        frappe.throw(_("Please choose another site name."))
     customer = frappe.new_doc("Customer")
     customer.customer_name = first_name + " "+ last_name
     customer.email = email
@@ -125,12 +128,14 @@ def send_otp(customer):
     message = """<div> 	
                 Hi <b>{name}</b>, 
                 <br><br>
-                You are just a step away from accessing your grr.fyi account.<br>
+                You are one step away from accessing your grr.fyi account.
+                <br>
                 Below is the verification code to access your account.
                 <br><br>
                 Your Verification Code: <b>{code}</b>
                 <br><br>
-                Once you verify, we will finish setting up your account.<br>
+                Once you verify, we will finish setting up your account.
+                <br>
                 Thank you for choosing GRYNN.
                 <br><br>
                 Cheers,
@@ -163,13 +168,13 @@ def verify_otp(cmd, id, otp):
         }
 
 @frappe.whitelist(allow_guest=True)
-def update_account(email, users=None, currency=None, billing=None, add_on=None):
-    if not users and not currency and not billing and not add_on:
+def update_account(email, users=None, currency=None, billing=None):
+    if not users and not currency and not billing:
         return
     try:
         customer = frappe.get_doc("Customer", {"email": email})
         customer.plan = billing
-        customer.consultingsupport = add_on
+        # customer.consultingsupport = add_on
         customer.default_currency = currency
         customer.users = users 
         customer.save(ignore_permissions=True)
@@ -180,42 +185,44 @@ def update_account(email, users=None, currency=None, billing=None, add_on=None):
     
 
 @frappe.whitelist(allow_guest=True)
-def get_total_cost(users, currency, billing_cycle, add_ons, coupon=None):
-    print(users, currency, billing_cycle, add_ons, coupon) 
+def get_total_cost(users, currency, billing_cycle, coupon=None):
+    print(users, currency, billing_cycle, coupon) 
 
     billing_cycle_price = frappe.get_value("Item Price",{"item_code": billing_cycle, "currency":currency, "selling": 1},"price_list_rate")
-    add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
-    print(billing_cycle_price, add_on_price)
+    # add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
+    print(billing_cycle_price)
 
-    total_cost = (billing_cycle_price * cint(users)) + (add_on_price or 0)
+    total_cost = (billing_cycle_price * cint(users))
     discount = 0
     if coupon and frappe.db.exists("Coupon", coupon):
         total_cost, discount = apply_code(coupon, total_cost, currency)
 
     formatted_billing_price = (fmt_money((billing_cycle_price * cint(users)), currency=currency)).replace("'", ",")
-    formatted_add_on_price = (fmt_money(add_on_price, currency=currency)).replace("'",",")
+    # formatted_add_on_price = (fmt_money(add_on_price, currency=currency)).replace("'",",")
     formatted_total_cost = (fmt_money(total_cost, currency=currency)).replace("'",",")
     formatted_discount = (fmt_money(discount, currency=currency)).replace("'",",")
 
     return {
         "billing_cost": formatted_billing_price,
-        "add_on" : formatted_add_on_price,
+        # "add_on" : formatted_add_on_price,
         "total_cost" : formatted_total_cost, 
         "discount": formatted_discount
     }
 
 
 def apply_code(coupon, cost_without_coupon, currency):
-    validity_date, discount_rate, max_discount, times_used = frappe.get_value("Coupon", 
-        {"name": coupon}, ["valid_till", "discount_percent", "maximum_discount_amount", "used"])
+    validity_date, discount_rate, max_discount, max_usage, times_used = frappe.get_value("Coupon", 
+        {"name": coupon}, ["valid_till", "discount_percent", "maximum_discount_amount", "max_usage", "used"])
 
-    if validity_date.strftime("%Y-%m-%d") < nowdate() or cint(times_used) >= 100:
+    if validity_date.strftime("%Y-%m-%d") < nowdate() or cint(times_used) >= max_usage:
         frappe.throw(_("Coupon has expired."))
     total_cost = 0
     discount_amount = (cost_without_coupon * discount_rate) / 100
 
     #convert max_discount from company currency to customer currency
-    max_discount = max_discount * 1.01 if currency == "USD" else max_discount * 73    ##  1 CHF = 1.01 USD,  1 CHF = 73 INR
+    max_discount = max_discount * 1.01 if currency == "USD" else max_discount * 71    ##  1 CHF = 1.01 USD,  1 CHF = 71 INR
+
+    
     if discount_amount >= max_discount:
         total_cost = cost_without_coupon - max_discount
         return [total_cost, max_discount]
@@ -227,13 +234,13 @@ def apply_code(coupon, cost_without_coupon, currency):
 def register(args):
     try:
         args = json.loads(args)
-        users, currency, billing_cycle, add_ons, coupon, email = args['users'], args['currency'], args['billing_cycle'],args['add_ons'],args['coupon'],args['email']
+        users, currency, billing_cycle, coupon, email = args['users'], args['currency'], args['billing_cycle'],args['coupon'],args['email']
         price_list = frappe.get_value("Price List", {"currency": currency, "selling": 1, "enabled": 1})
 
         billing_cycle_price = frappe.get_value("Item Price",{"item_code": billing_cycle, "currency":currency, "selling": 1},"price_list_rate")
-        add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
+        # add_on_price = 0 if add_ons == "0" else frappe.get_value("Item Price",{"item_code": add_ons, "currency":currency, "selling": 1},"price_list_rate")
 
-        total_cost = (billing_cycle_price * cint(users)) + (add_on_price or 0)
+        total_cost = (billing_cycle_price * cint(users))
         discount = 0
 
         if coupon:
@@ -241,18 +248,30 @@ def register(args):
 
         customer, customer_email = frappe.get_value("Customer", {"email": email }, ["name", "email"])
         frappe.db.set_value("Customer", customer, "users", users)
-
-        sales_order = make_sales_order(customer,currency, price_list, discount, users, billing_cycle, add_ons)
-
+        frappe.db.commit()
+        
+        sales_order = make_sales_order(customer,currency, price_list, discount, users, billing_cycle, coupon)
+        
         si = make_sales_invoice(sales_order.name,ignore_permissions=True)
         si.insert(ignore_permissions=True)
         si.submit()
         
+        update_coupon_usage(coupon)
+
         payment_request = make_payment_request(dt="Sales Invoice", dn=si.name, submit_doc=True, mute_email=True, payment_gateway= payment_gateway_account[currency])
         
-        print(payment_request)
+        payment_details = get_payment_details(payment_request ,si, customer,customer_email, currency)
 
-        payment_details = {
+        controller = get_payment_gateway_controller(payment_gateway[currency])
+        url = controller.get_payment_url(**payment_details)
+        print(controller, url)
+        return url
+    except Exception as e:
+        print(e)
+        print(frappe.get_traceback())
+
+def get_payment_details(payment_request ,si, customer,customer_email, currency):
+    return {
 		"amount": si.grand_total,
 		"title": payment_request.reference_name,
 		"description": payment_request.subject,
@@ -271,26 +290,20 @@ def register(args):
 		# 	"customer_notify": 1,
 		# 	"upfront_amount": 1000
 		# }
-	    }
-        print(payment_details)
+	}
 
-        controller = get_payment_gateway_controller(payment_gateway[currency])
-        # controller.validate_transaction_currency(payment_gateway[currency])
-        url = controller.get_payment_url(**payment_details)
-        print(controller, url)
-        return url
-    except Exception as e:
-        print(e)
-        print(frappe.get_traceback())
-    
-
-
-
-def make_sales_order(customer,currency, price_list, discount, users, billing_cycle=None, add_ons=None):
+def update_coupon_usage(coupon):
+    times_used = frappe.get_value("Coupon", coupon, "used")
+    coupon_usage = cint(times_used) + 1
+    frappe.db.set_value("Coupon", coupon,"used", coupon_usage)
+    frappe.db.commit()
+        
+def make_sales_order(customer,currency, price_list, discount, users, billing_cycle=None, coupon=None):
     try:
         sales_order = frappe.new_doc("Sales Order")
         sales_order.customer = customer
         sales_order.currency = currency
+        sales_order.coupon = coupon
         sales_order.delivery_date = nowdate()
         sales_order.selling_price_list = price_list
         sales_order.discount_amount = discount
@@ -303,13 +316,13 @@ def make_sales_order(customer,currency, price_list, discount, users, billing_cyc
                 "delivery_date": nowdate()
             })
 
-        if add_ons and add_ons != "0":
-            sales_order.append("items",{
-                "item_code": add_ons,
-		    	"item_name": add_ons,
-                "qty": 1,
-                "delivery_date": nowdate()    
-            })
+        # if add_ons and add_ons != "0":
+        #     sales_order.append("items",{
+        #         "item_code": add_ons,
+		#     	"item_name": add_ons,
+        #         "qty": 1,
+        #         "delivery_date": nowdate()    
+        #     })
         sales_order.insert(ignore_permissions=True)
         sales_order.submit()
 

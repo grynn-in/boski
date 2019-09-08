@@ -106,11 +106,11 @@ frappe.ready(function() {
         console.log($page.find('input[name="number_of_users"]').val());
         console.log($page.find('select[name="currency"]').val());
         console.log($page.find('#billing_cycle').val());
-        console.log($page.find('#add_ons').val());
+        // console.log($page.find('#add_ons').val());
         let users = $page.find('input[name="number_of_users"]').val();
         let currency = $page.find('select[name="currency"]').val();
         let billing_cycle = $page.find('#billing_cycle').val();
-        let add_ons = $page.find('#add_ons').val();
+        // let add_ons = $page.find('#add_ons').val();
         
         get_total_cost($page);
 
@@ -123,26 +123,29 @@ frappe.ready(function() {
         console.log("asd");
         get_total_cost($page);
     })
-    $page.find('#add_ons').on('change', ()=>{
-        get_total_cost($page);
-    })    
+    // $page.find('#add_ons').on('change', ()=>{
+    //     get_total_cost($page);
+    // })    
     $page.find('#billing_cycle').on('change', ()=>{
         get_total_cost($page);
     })    
 
     $page.find('.apply-code').on('click', ()=>{
         get_total_cost($page);
-    })
-    $page.find('.other-settings-button').on('click', ()=>{
-        if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
-
-            frappe.msgprint("All fields are necessary. Please try again.");
-            return false;
-        } else {
-            setup_other_details($page, changeRoute);
+        if (!$page.find('input[name="coupon"]').val()){    
+            frappe.msgprint("Please enter a coupon code first.");
         }
-    }
-    );
+    })
+    // $page.find('.other-settings-button').on('click', ()=>{
+    //     if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
+
+    //         frappe.msgprint("All fields are necessary. Please try again.");
+    //         return false;
+    //     } else {
+    //         setup_other_details($page, changeRoute);
+    //     }
+    // }
+    // );
 
     $page.find('.plan-select-button').on('click', ()=>{
         if (!$page.find('select[name="currency"]').val() || !$page.find('input[name="users"]').val() /*|| !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()*/) {
@@ -165,91 +168,6 @@ frappe.ready(function() {
         }
     }
     );
-
-    $page.find('.other-settings-button').on('click', ()=>{
-        if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
-
-            frappe.msgprint("All fields are necessary. Please try again.");
-            return false;
-        } else {
-            setup_other_details($page, changeRoute);
-        }
-    }
-    );
-
-    // let plan_name = frappe.utils.get_query_params().plan;
-
-    // if (plan_name) {
-    //     frappe.call({
-    //         method: 'erpnext_com.www.pricing.index.get_plan_details',
-    //         args: {
-    //             plan_name
-    //         },
-    //         callback: function(r) {
-    //             if (r.exc)
-    //                 return;
-
-    //             if (r.message) {
-    //                 plan = r.message
-    //                 window.plan = plan;
-    //                 let pricing = plan.pricing;
-
-    //                 $('.plan-name').html('ERPNext ' + plan_name.replace('P-', ''));
-    //                 $('.pricing-currency').html(pricing.symbol);
-
-    //                 $('.monthly-pricing, .total-cost').html(pricing.monthly_amount);
-    //             }
-    //         },
-
-    //     });
-    // }
-
-//     frappe.call({
-//         method: "central.www.signup.load_dropdowns",
-//         callback: function(r) {
-//             let $country_select = $("select[name*='country']");
-//             r.message.countries.forEach(country_name=>{
-//                 $country_select.append($("<option />").val(country_name).text(country_name));
-//             }
-//             );
-
-//             let $language_select = $("select[name*='language']");
-//             r.message.languages.forEach(language=>{
-//                 //language[0] is for language code and language[1] is for language name
-//                 $language_select.append($("<option />").val(language[0]).text(language[1]));
-//             }
-//             );
-
-//             let $timezone_select = $("select[name*='timezone']");
-//             r.message.all_timezones.forEach(timezone=>{
-//                 $timezone_select.append($("<option />").val(timezone).text(timezone));
-//             }
-//             );
-
-//             let $currency_select = $("select[name*='currency']");
-//             r.message.currencies.forEach(currency=>{
-//                 $currency_select.append($("<option />").val(currency).text(currency));
-//             }
-//             );
-
-//             let country_info = r.message.country_info;
-
-//             $country_select.on('change', function() {
-//                 let country = $(this).val();
-//                 $timezone_select.val(country_info[country].timezones[0]);
-//                 $currency_select.val(country_info[country].currency);
-//             });
-
-//             $language_select.val('en');
-//             if (r.message.default_country) {
-//                 $country_select.val(r.message.default_country);
-//             } else {
-//                 $country_select.val('India');
-//             }
-//             $country_select.trigger('change');
-//         }
-//     });
-
 });
 
 const route_map = [{
@@ -339,6 +257,7 @@ setup_signup = function(page) {
             page.find('.availability-status').removeClass('text-danger');
             page.find('.availability-status').addClass('text-success');
             page.find('.availability-status span').html(`${subdomain}.grr.fyi is available!`);
+            toggle_create_button(false);
         } else {
             // not available state
             page.find('.availability-status i').removeClass('octicon-check text-success');
@@ -347,6 +266,7 @@ setup_signup = function(page) {
             page.find('.availability-status').removeClass('text-success');
             page.find('.availability-status').addClass('text-danger');
             page.find('.availability-status span').html(`${subdomain}.grr.fyi is already taken.`);
+            toggle_create_button(true);
         }
     }
 
@@ -398,40 +318,6 @@ setup_signup = function(page) {
             });
         }, 2000);
     }
-
-    // var query_params = frappe.utils.get_query_params();
-    // if (!query_params.plan) {
-    //     // redirect to pricing page
-    //     var url = window.erpnext_signup.distribution == 'schools' ? "/schools/pricing" : '/pricing';
-    //     window.location.href = url + '?' + $.param(query_params)
-
-    // } else {
-    //     if (query_params.for_mobile_app) {
-    //         // for mobile app singup, hide header and footer
-    //         $("header,footer").addClass("hidden");
-    //     }
-
-    //     $('.plan-name').html(query_params.plan);
-    // }
-
-    // page.find(".plan-message").text("Free 14-day Trial");
-
-    // if (['Free', 'Free-Solo'].indexOf(query_params.plan)!==-1) {
-    // 		// keeping Free-Solo for backward compatibility
-    // 		page.find(".plan-message").text("Free for 1 User");
-    // 	}
-
-    // $('.domain-missing-msg').addClass("hidden");
-    // if (query_params.domain) {
-    //     var subdomain = query_params.domain;
-    //     if (subdomain.indexOf(".erpnext.com")) {
-    //         subdomain = subdomain.replace(".erpnext.com", "");
-    //     }
-    //     $('[name="subdomain"]').val(subdomain);
-
-    //     $('.missing-domain').html(query_params.domain);
-    //     $('.missing-domain-msg').removeClass("hidden");
-    // }
 
     window.clear_timeout = function() {
         if (window.timout_password_strength) {
@@ -716,19 +602,22 @@ function toggle_button(event) {
     button.prop("disabled", !event.target.checked);
     ;
 }
-
+function toggle_create_button(value) {
+    let button = $(".get-started-button");
+    button.prop("disabled", value);
+}
 function get_args($page){
     let users = $page.find('input[name="number_of_users"]').val();
     let currency = $page.find('select[name="currency"]').val();
     let billing_cycle = $page.find('#billing_cycle').val();
-    let add_ons = $page.find('#add_ons').val();
+    // let add_ons = $page.find('#add_ons').val();
     let coupon = $page.find('input[name="coupon"]').val() || "";
     
     let args = {};
     args['users'] = users;
     args['currency'] = currency;
     args['billing_cycle'] = billing_cycle;
-    args['add_ons'] = add_ons;
+    // args['add_ons'] = add_ons;
     args['coupon'] = coupon;
     args['email'] = localStorage.getItem('email')
     console.log(args);
@@ -753,10 +642,10 @@ function get_total_cost($page){
                 $('.billing-plan').text($page.find('#billing_cycle option:selected').text());
 
             }
-            if (r.message.add_on) {
-                $('.add-on').text(r.message.add_on);
-                $('.addon-name').text($page.find('#add_ons option:selected').text());
-            }
+            // if (r.message.add_on) {
+            //     $('.add-on').text(r.message.add_on);
+            //     $('.addon-name').text($page.find('#add_ons option:selected').text());
+            // }
             if (r.message.total_cost) {
                 $('.total').text(r.message.total_cost);
             }

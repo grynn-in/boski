@@ -21,7 +21,8 @@ from frappe.utils import fmt_money, random_string, cint, nowdate
 def boski_manager(name, key, allow_guest=True):
         commands = []
         doc = frappe.get_doc("Customer", {"name": name})
-        if(doc.domain):
+        site_in = check_site_name(str(doc.domain))
+        if(not site_in):
                 domain = (str(doc.domain)+".grr.fyi")
                 installable_apps = get_installable_apps()
                 admin_password = random_string(6)
@@ -33,7 +34,7 @@ def boski_manager(name, key, allow_guest=True):
                 commands.append("bench --site {site_name} install-app erpnext".format(site_name=domain))
                 commands.append("bench setup add-domain --site {site_name} {site_name}".format(site_name=domain))
                 commands.append("bench --site {site_name} enable-scheduler".format(site_name=domain))
-                commands.append("bench --site {site_name} set-limits --limit users {user}".format(site_name=domain, user=int(doc.users)))
+                commands.append("bench --site {site_name} set-limits --limit users {user} --limit emails 1000".format(site_name=domain, user=int(doc.users)))
                 frappe.enqueue('boski.utils.boski.boski_command_manager', key=key, commands=commands, site_name=domain, password=admin_password, email=doc.email)
         else:
                 frappe.throw(_("Kindly Provide Domain Name."))
@@ -85,11 +86,13 @@ def boski_command_manager(key, commands, site_name, password, email):
                                 msg = """<div>
                                         Hey,
                                         <br><br>
-                                        Thanks for choosing GRYNN. <br><br>
-                                        {site_name} is now ready. <br><br>
-                                        Login with user <b>Administrator</b>.<br><br>
-                                        <b>Password</b>is {password} .<br><br>
-                                        Thanks & Regards,
+                                        Thanks for choosing GRYNN. 
+                                        <br><br>
+                                        {site_name} is now ready. 
+                                        <br><br>
+                                        Login id: Administrator.
+                                        <br><br>
+                                        Password: {password} .
                                         <br><br>
                                         Cheers,
                                         <br><br>

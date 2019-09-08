@@ -9,6 +9,7 @@ def after_submit(doc, method):
                 doctype = doc.meta.get("name")
                 print("sahil is here", doctype, method, doc.name, doc.party)
                 frappe.msgprint(_("Thanks For choosing GRYNN. We are working for you. We will notify you with email once your site is ready."))
-                boski_manager(doc.party, "guest", allow_guest=True)
+                if(doc.paid_amount == doc.base_received_amount):
+                        boski_manager(doc.party, "guest", allow_guest=True)
         except Exception as e:
                 frappe.msgprint(e)
