@@ -85,7 +85,10 @@ web_include_js = "/assets/boski/js/boski_manager.js"
 doc_events = {
  	"Payment Entry": {
  		"on_submit": "boski.whitelisted.after_submit"
-	}
+	},
+        #"Payment Request": {
+         #       "on_submit": "boski.whitelisted.send_payment_request"    
+        #}
 }
 
 # Scheduled Tasks

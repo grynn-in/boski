@@ -37,7 +37,7 @@ def boski_manager(name, key, allow_guest=True):
                 commands.append("bench --site {site_name} set-limits --limit users {user} --limit emails 1000".format(site_name=domain, user=int(doc.users)))
                 frappe.enqueue('boski.utils.boski.boski_command_manager', key=key, commands=commands, site_name=domain, password=admin_password, email=doc.email)
         else:
-                frappe.throw(_("Kindly Provide Domain Name."))
+                frappe.throw(_("Thanks for choosing GRYNN...!!!"))
 
 def get_installable_apps():
         app_list_file = 'apps.txt'
