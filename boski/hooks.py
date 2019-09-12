@@ -22,7 +22,10 @@ app_include_js = [
 ]
 
 # include js, css files in header of web template
-web_include_css = "/assets/boski/css/boski-web.css"
+web_include_css = [
+        "/assets/boski/css/boski-web.css",
+        "/assets/boski/css/boski-web-b4.css"
+]
 web_include_js = "/assets/boski/js/boski_manager.js"
 
 # include js in page
@@ -86,9 +89,9 @@ doc_events = {
  	"Payment Entry": {
  		"on_submit": "boski.whitelisted.after_submit"
 	},
-        #"Payment Request": {
-         #       "on_submit": "boski.whitelisted.send_payment_request"    
-        #}
+        "Payment Request": {
+                "on_submit": "boski.whitelisted.send_payment_request"    
+        }
 }
 
 # Scheduled Tasks

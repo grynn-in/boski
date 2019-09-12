@@ -16,7 +16,7 @@ def after_submit(doc, method):
 def send_payment_request(doc, method):
         try:
                 doctype = doc.meta.get("name")
-                if(doc.status != "Initiated"):
+                if(doc.status == "Initiated"):
                         customer = frappe.get_doc("Customer", doc.party)
                         msg = """ <div>
                                 Hi {name},

@@ -409,7 +409,7 @@ function setup_account_request($page, changeRoute) {
 
     } else {
         var args = Array.from($page.find('.personal-info form input')).reduce((acc,input)=>{
-            acc[$(input).attr('name')] = $(input).val();
+            acc[$(input).attr('name')] = $(input).attr('name')  === "subdomain" ? $(input).val().trim().toLowerCase() : $(input).val().trim() ;
             return acc;
         }
         , {});

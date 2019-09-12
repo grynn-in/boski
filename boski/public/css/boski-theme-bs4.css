@@ -19,7 +19,7 @@
    --white: #fff;
    --gray: #8d99a6;
    --gray-dark: #36414c;
-   --primary: #5e64ff;
+   --primary: #1c0c8e;
    --secondary: #8d99a6;
    --success: #28a745;
    --info: #17a2b8;
@@ -1896,22 +1896,22 @@
        box-shadow: 0 0 0 0.2rem rgba(84, 94, 103, 0.5); }
  
  .btn-outline-primary {
-   color: #5e64ff;
-   border-color: #5e64ff; }
+   color: #1c0c8e;
+   border-color: #1c0c8e; }
    .btn-outline-primary:hover {
      color: #fff;
-     background-color: #5e64ff;
-     border-color: #5e64ff; }
+     background-color: #1c0c8e;
+     border-color: #1c0c8e; }
    .btn-outline-primary:focus, .btn-outline-primary.focus {
      box-shadow: 0 0 0 0.2rem rgba(94, 100, 255, 0.5); }
    .btn-outline-primary.disabled, .btn-outline-primary:disabled {
-     color: #5e64ff;
+     color: #1c0c8e;
      background-color: transparent; }
    .btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active,
    .show > .btn-outline-primary.dropdown-toggle {
      color: #fff;
-     background-color: #5e64ff;
-     border-color: #5e64ff; }
+     background-color: #1c0c8e;
+     border-color: #1c0c8e; }
      .btn-outline-primary:not(:disabled):not(.disabled):active:focus, .btn-outline-primary:not(:disabled):not(.disabled).active:focus,
      .show > .btn-outline-primary.dropdown-toggle:focus {
        box-shadow: 0 0 0 0.2rem rgba(94, 100, 255, 0.5); }
@@ -2300,7 +2300,7 @@
    .dropdown-item.active, .dropdown-item:active {
      color: #fff;
      text-decoration: none;
-     background-color: #5e64ff; }
+     background-color: #1c0c8e; }
    .dropdown-item.disabled, .dropdown-item:disabled {
      color: #8d99a6;
      pointer-events: none;
@@ -2574,8 +2574,8 @@
    opacity: 0; }
    .custom-control-input:checked ~ .custom-control-label::before {
      color: #fff;
-     border-color: #5e64ff;
-     background-color: #5e64ff; }
+     border-color: #1c0c8e;
+     background-color: #1c0c8e; }
    .custom-control-input:focus ~ .custom-control-label::before {
      box-shadow: 0 0 0 0.2rem rgba(94, 100, 255, 0.25); }
    .custom-control-input:focus:not(:checked) ~ .custom-control-label::before {
@@ -2621,8 +2621,8 @@
    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e"); }
  
  .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-label::before {
-   border-color: #5e64ff;
-   background-color: #5e64ff; }
+   border-color: #1c0c8e;
+   background-color: #1c0c8e; }
  
  .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-label::after {
    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath stroke='%23fff' d='M0 2h4'/%3e%3c/svg%3e"); }
@@ -2786,7 +2786,7 @@
      width: 1rem;
      height: 1rem;
      margin-top: -0.25rem;
-     background-color: #5e64ff;
+     background-color: #1c0c8e;
      border: 0;
      border-radius: 1rem;
      transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -2807,7 +2807,7 @@
    .custom-range::-moz-range-thumb {
      width: 1rem;
      height: 1rem;
-     background-color: #5e64ff;
+     background-color: #1c0c8e;
      border: 0;
      border-radius: 1rem;
      transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -2831,7 +2831,7 @@
      margin-top: 0;
      margin-right: 0.2rem;
      margin-left: 0.2rem;
-     background-color: #5e64ff;
+     background-color: #1c0c8e;
      border: 0;
      border-radius: 1rem;
      transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -2924,7 +2924,7 @@
  .nav-pills .nav-link.active,
  .nav-pills .show > .nav-link {
    color: #fff;
-   background-color: #5e64ff; }
+   background-color: #1c0c8e; }
  
  .nav-fill .nav-item {
    flex: 1 1 auto;
@@ -3438,8 +3438,8 @@
  .page-item.active .page-link {
    z-index: 1;
    color: #fff;
-   background-color: #5e64ff;
-   border-color: #5e64ff; }
+   background-color: #1c0c8e;
+   border-color: #1c0c8e; }
  
  .page-item.disabled .page-link {
    color: #8d99a6;
@@ -3504,7 +3504,7 @@
  
  .badge-primary {
    color: #fff;
-   background-color: #5e64ff; }
+   background-color: #1c0c8e; }
    a.badge-primary:hover, a.badge-primary:focus {
      color: #fff;
      background-color: #2b33ff; }
@@ -3711,7 +3711,7 @@
    color: #fff;
    text-align: center;
    white-space: nowrap;
-   background-color: #5e64ff;
+   background-color: #1c0c8e;
    transition: width 0.6s ease; }
    @media (prefers-reduced-motion: reduce) {
      .progress-bar {
@@ -3774,8 +3774,8 @@
    .list-group-item.active {
      z-index: 2;
      color: #fff;
-     background-color: #5e64ff;
-     border-color: #5e64ff; }
+     background-color: #1c0c8e;
+     border-color: #1c0c8e; }
  
  .list-group-horizontal {
    flex-direction: row; }
@@ -4579,7 +4579,7 @@
    vertical-align: text-top !important; }
  
  .bg-primary {
-   background-color: #5e64ff !important; }
+   background-color: #1c0c8e !important; }
  
  a.bg-primary:hover, a.bg-primary:focus,
  button.bg-primary:hover,
@@ -6935,7 +6935,7 @@
    color: #fff !important; }
  
  .text-primary {
-   color: #5e64ff !important; }
+   color: #1c0c8e !important; }
  
  a.text-primary:hover, a.text-primary:focus {
    color: #121aff !important; }
@@ -7174,7 +7174,7 @@
    white-space: nowrap;
    color: #fafbfc; }
    .navbar.bg-dark .nav-link:hover {
-     color: #5e64ff; }
+     color: #1c0c8e; }
  
  .navbar.bg-dark .nav-item {
    padding: 0rem 1rem; }
@@ -7183,7 +7183,7 @@
    color: #fafbfc; }
    .navbar.bg-dark .dropdown-item:hover {
      background-color: #36414c;
-     color: #5e64ff; }
+     color: #1c0c8e; }
  
  .input-dark {
    background-color: #36414c;
@@ -7443,7 +7443,7 @@
  
  .indicator.blue::before,
  .indicator-right.blue::after {
-   background: #5e64ff; }
+   background: #1c0c8e; }
  
  .indicator.red::before,
  .indicator-right.red::after {
