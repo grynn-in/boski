@@ -27,7 +27,7 @@ def boski_manager(name, key, allow_guest=True):
                 installable_apps = get_installable_apps()
                 admin_password = random_string(6)
                 mysql_root_password = get_verify_password()
-                commands = ["bench new-site --mariadb-root-password {mysql_password} --admin-password {admin_password} {site_name}".format(site_name=domain, admin_password=admin_password, mysql_password=mysql_root_password)]
+                commands = ["bench new-site --db-name {db_name} --mariadb-root-password {mysql_password} --admin-password {admin_password} {site_name}".format(db_name=str(doc.domain), site_name=domain, admin_password=admin_password, mysql_password=mysql_root_password)]
                 
                 if('erpnext' not in installable_apps):
                         commands.append("bench get-app erpnext")
