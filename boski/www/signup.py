@@ -11,6 +11,7 @@ from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 from erpnext.accounts.doctype.payment_request.payment_request import make_payment_request
 from frappe.integrations.utils import get_payment_gateway_controller
 from boski.utils.boski import check_site_name
+from erpnext.controllers.accounts_controller import get_taxes_and_charges
 import json
 
 payment_gateway = {
@@ -252,6 +253,7 @@ def register(args):
         
         sales_order = make_sales_order(customer,currency, price_list, discount, users, billing_cycle, coupon)
         
+
         si = make_sales_invoice(sales_order.name,ignore_permissions=True)
         si.insert(ignore_permissions=True)
         si.submit()
@@ -282,14 +284,6 @@ def get_payment_details(payment_request ,si, customer,customer_email, currency):
 		"order_id": payment_request.reference_name,
 		"currency": payment_request.currency,
 		"payment_gateway": payment_gateway[currency],
-		# "subscription_details": {
-		# 	"plan_id": "plan_12313", # if Required
-		# 	"start_date": "2018-08-30",
-		# 	"billing_period": "Month" #(Day, Week, SemiMonth, Month, Year),
-		# 	"billing_frequency": 1,
-		# 	"customer_notify": 1,
-		# 	"upfront_amount": 1000
-		# }
 	}
 
 def update_coupon_usage(coupon):
@@ -302,12 +296,11 @@ def make_sales_order(customer,currency, price_list, discount, users, billing_cyc
     try:
         sales_order = frappe.new_doc("Sales Order")
         sales_order.customer = customer
-        sales_order.currency = currency
         sales_order.coupon = coupon
         sales_order.delivery_date = nowdate()
         sales_order.selling_price_list = price_list
+        sales_order.currency = currency
         sales_order.discount_amount = discount
-    
         if billing_cycle:
             sales_order.append("items",{
                 "item_code": billing_cycle,
@@ -315,17 +308,21 @@ def make_sales_order(customer,currency, price_list, discount, users, billing_cyc
                 "qty": cint(users),
                 "delivery_date": nowdate()
             })
-
-        # if add_ons and add_ons != "0":
-        #     sales_order.append("items",{
-        #         "item_code": add_ons,
-		#     	"item_name": add_ons,
-        #         "qty": 1,
-        #         "delivery_date": nowdate()    
-        #     })
+        
+        tax_template = frappe.get_value("Sales Taxes and Charges Template", {"is_default": 1})
+        taxes = get_taxes_and_charges('Sales Taxes and Charges Template', tax_template)
+        print(tax_template)
+        for tax in taxes:
+            sales_order.append('taxes', tax)
         sales_order.insert(ignore_permissions=True)
         sales_order.submit()
-
         return sales_order
     except Exception as e:
         print(frappe.get_traceback())
+
+
+def get_conversion_rate(currency):
+    company_currency = frappe.db.get_single_value("Global Defaults", "default_currency")
+    conversion_rate = frappe.get_value("Currency Exchange", {"from_currency": currency, "to_currency": company_currency, 
+                            "date": nowdate(), "for_selling": 1}, "exchange_rate")
+    return conversion_rate

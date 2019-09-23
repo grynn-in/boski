@@ -1,0 +1,13 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Custom Script",
+  "dt": "Customer",
+  "modified": "2019-08-26 16:39:05.833669",
+  "name": "Customer-Client",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Customer', {\n\trefresh(frm) {\n\t    var key = frappe.datetime.get_datetime_as_string();\n\t\tfrm.add_custom_button(__('New Site'), function(){\n\t\t    boski_console(key);\n\t\t    frappe.call({\n\t\t        method: 'boski.utils.boski.boski_manager',\n\t\t        args: {\"email\": cur_frm.doc.email, key: key}\n\t\t    });\n\t\t});\n\t}\n})"
+ }
+]

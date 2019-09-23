@@ -126,4 +126,7 @@ doc_events = {
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "boski.event.get_events"
 # }
-
+fixtures = [
+    "Custom Script",
+    {"dt":"Custom Field", "filters": [["dt", "in", ("Customer", "Item", "Sales Order", "Sales Invoice")]]}
+]
