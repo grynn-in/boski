@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include boski *.css
+recursive-include boski *.csv
+recursive-include boski *.html
+recursive-include boski *.ico
+recursive-include boski *.js
+recursive-include boski *.json
+recursive-include boski *.md
+recursive-include boski *.png
+recursive-include boski *.py
+recursive-include boski *.svg
+recursive-include boski *.txt
+recursive-exclude boski *.pyc
