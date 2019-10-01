@@ -84,19 +84,19 @@ def boski_command_manager(key, commands, site_name, password, email):
                         frappe.publish_realtime(key, "\n\nYour Site is Ready. Thanks For Choosing GRYNN...!!!", user=frappe.session.user)
                         try:
                                 msg = """<div>
-                                        Hey,
-                                        <br><br>
-                                        Thanks for choosing GRYNN. 
-                                        <br><br>
-                                        {site_name} is now ready. 
-                                        <br><br>
-                                        Login id: Administrator.
-                                        <br><br>
-                                        Password: {password} .
-                                        <br><br>
+                                        Dear Customer,
+                                        <br>
+                                        Thanks for choosing Grynn as your hosting partner for ERPNext. 
+                                        <br>
+                                        Your site: {site_name} is now ready. 
+                                        <br>
+                                        Login id: Administrator
+                                        <br>
+                                        Password: {password}
+                                        <br>
                                         Cheers,
-                                        <br><br>
-                                        GRYNN Team
+                                        <br>
+                                        The Grynn Team
                                         </div>
                                         """.format(site_name=site_name, password=password)
                                 
