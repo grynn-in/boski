@@ -125,23 +125,23 @@ def signup(cmd, email, first_name, last_name, subdomain):
 def send_otp(customer):
     code = random_string(6)
     recipients = customer.email
-    subject = "Please confirm this email address for ERPNext"
+    subject = "Please confirm your email address [Grynn GmbH]"
     message = """<div> 	
-                Hi <b>{name}</b>, 
+                Dear <b>{name}</b>, 
                 <br><br>
-                You are one step away from accessing your grr.fyi account.
+                You are one step away from setting up your account.
                 <br>
                 Below is the verification code to access your account.
-                <br><br>
-                Your Verification Code: <b>{code}</b>
-                <br><br>
-                Once you verify, we will finish setting up your account.
                 <br>
-                Thank you for choosing GRYNN.
-                <br><br>
+                Your Verification Code: <b>{code}</b>
+                <br>
+                Once you verify your email, we will continue to setup your account. 
+                <br>
+                Thank you again for chosing Grynn as your partner.
+                <br>
                 Cheers,
-                <br><br>
-                GRYNN Team
+                <br>
+                The Grynn Team
                 </div>
             """.format(name=customer.customer_name, code=code)
     frappe.sendmail(recipients=recipients, subject=subject, message=message,now=True )
