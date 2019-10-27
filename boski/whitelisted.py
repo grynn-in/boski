@@ -8,7 +8,7 @@ from frappe.utils.background_jobs import enqueue
 def after_submit(doc, method):
         try:
                 doctype = doc.meta.get("name")
-                if(doc.paid_amount == doc.base_received_amount):
+                if(doc.party_balance == doc.base_received_amount):
                         boski_manager(doc.party, "guest", allow_guest=True)
         except Exception as e:
                 frappe.msgprint(e)
