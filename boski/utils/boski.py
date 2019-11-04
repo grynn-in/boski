@@ -23,7 +23,7 @@ def boski_manager(name, key, allow_guest=True):
         doc = frappe.get_doc("Customer", {"name": name})
         site_in = check_site_name(str(doc.domain))
         if(not site_in):
-                domain = (str(doc.domain)+".grr.fyi")
+                domain = (str(doc.domain)+".grynn.ch")
                 installable_apps = get_installable_apps()
                 admin_password = random_string(6)
                 mysql_root_password = get_verify_password()
@@ -114,7 +114,7 @@ def boski_command_manager(key, commands, site_name, password, email):
 
 @frappe.whitelist(allow_guest=True)
 def check_site_name(site):
-    site = site + ".grr.fyi"
+    site = site + ".grynn.ch"
     print(site)
     return bytes(site, 'utf-8') in check_output("ls")
 

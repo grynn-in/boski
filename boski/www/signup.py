@@ -129,7 +129,7 @@ def send_otp(customer):
     message = """<div> 	
                 Hi <b>{name}</b>, 
                 <br><br>
-                You are one step away from accessing your grr.fyi account.
+                You are one step away from accessing your grynn.ch account.
                 <br>
                 Below is the verification code to access your account.
                 <br><br>
