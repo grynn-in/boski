@@ -256,7 +256,7 @@ setup_signup = function(page) {
 
             page.find('.availability-status').removeClass('text-danger');
             page.find('.availability-status').addClass('text-success');
-            page.find('.availability-status span').html(`${subdomain}.grr.fyi is available!`);
+            page.find('.availability-status span').html(`${subdomain}.grynn.ch is available!`);
             toggle_create_button(false);
         } else {
             // not available state
@@ -265,7 +265,7 @@ setup_signup = function(page) {
 
             page.find('.availability-status').removeClass('text-success');
             page.find('.availability-status').addClass('text-danger');
-            page.find('.availability-status span').html(`${subdomain}.grr.fyi is already taken.`);
+            page.find('.availability-status span').html(`${subdomain}.grynn.ch is already taken.`);
             toggle_create_button(true);
         }
     }

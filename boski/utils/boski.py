@@ -23,7 +23,7 @@ def boski_manager(name, key, allow_guest=True):
         doc = frappe.get_doc("Customer", {"name": name})
         site_in = check_site_name(str(doc.domain))
         if(not site_in):
-                domain = (str(doc.domain)+".grr.fyi")
+                domain = (str(doc.domain)+".grynn.ch")
                 installable_apps = get_installable_apps()
                 admin_password = random_string(6)
                 mysql_root_password = get_verify_password()
@@ -84,19 +84,19 @@ def boski_command_manager(key, commands, site_name, password, email):
                         frappe.publish_realtime(key, "\n\nYour Site is Ready. Thanks For Choosing GRYNN...!!!", user=frappe.session.user)
                         try:
                                 msg = """<div>
-                                        Dear Customer,
-                                        <br>
-                                        Thanks for choosing Grynn as your hosting partner for ERPNext. 
-                                        <br>
-                                        Your site: {site_name} is now ready. 
-                                        <br>
-                                        Login id: Administrator
-                                        <br>
-                                        Password: {password}
-                                        <br>
+                                        Hey,
+                                        <br><br>
+                                        Thanks for choosing GRYNN. 
+                                        <br><br>
+                                        {site_name} is now ready. 
+                                        <br><br>
+                                        Login id: Administrator.
+                                        <br><br>
+                                        Password: {password} .
+                                        <br><br>
                                         Cheers,
-                                        <br>
-                                        The Grynn Team
+                                        <br><br>
+                                        GRYNN Team
                                         </div>
                                         """.format(site_name=site_name, password=password)
                                 
@@ -114,7 +114,7 @@ def boski_command_manager(key, commands, site_name, password, email):
 
 @frappe.whitelist(allow_guest=True)
 def check_site_name(site):
-    site = site + ".grr.fyi"
+    site = site + ".grynn.ch"
     print(site)
     return bytes(site, 'utf-8') in check_output("ls")
 
