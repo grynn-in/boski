@@ -103,14 +103,9 @@ frappe.ready(function() {
     );
 
     $page.find('.other-details').ready(function(){
-        console.log($page.find('input[name="number_of_users"]').val());
-        console.log($page.find('select[name="currency"]').val());
-        console.log($page.find('#billing_cycle').val());
-        // console.log($page.find('#add_ons').val());
         let users = $page.find('input[name="number_of_users"]').val();
         let currency = $page.find('select[name="currency"]').val();
         let billing_cycle = $page.find('#billing_cycle').val();
-        // let add_ons = $page.find('#add_ons').val();
         
         get_total_cost($page);
 
@@ -120,12 +115,8 @@ frappe.ready(function() {
         get_total_cost($page);
     })
     $page.find('input[name="number_of_users"]').on('change', ()=>{
-        console.log("asd");
         get_total_cost($page);
     })
-    // $page.find('#add_ons').on('change', ()=>{
-    //     get_total_cost($page);
-    // })    
     $page.find('#billing_cycle').on('change', ()=>{
         get_total_cost($page);
     })    
@@ -136,16 +127,6 @@ frappe.ready(function() {
             frappe.msgprint("Please enter a coupon code first.");
         }
     })
-    // $page.find('.other-settings-button').on('click', ()=>{
-    //     if (!$page.find('input[name="company"]').val() || !$page.find('input[name="users"]').val() || !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()) {
-
-    //         frappe.msgprint("All fields are necessary. Please try again.");
-    //         return false;
-    //     } else {
-    //         setup_other_details($page, changeRoute);
-    //     }
-    // }
-    // );
 
     $page.find('.plan-select-button').on('click', ()=>{
         if (!$page.find('select[name="currency"]').val() || !$page.find('input[name="users"]').val() /*|| !$page.find('input[name="designation"]').val() || !$page.find('select[name="referral_source"]').val()*/) {
@@ -200,7 +181,6 @@ setup_signup = function(page) {
 
             $('.number_of_users').html(number_of_users);
             $('.user-text').html(number_of_users > 1 ? 'users' : 'user');
-            // $('.total-cost').html((plan.pricing.monthly_amount * number_of_users).toFixed(0));
         }
     });
 
@@ -278,12 +258,6 @@ setup_signup = function(page) {
         $('.subdomain-help').text($(this).val() || window.erpnext_signup.subdomain_placeholder);
     });
 
-    // distribution
-    // $('.erpnext-distribution').on("click", function() {
-    // 	set_distribution(true);
-    // });
-    //
-    // set_distribution();
 
     function is_a_valid_subdomain(subdomain) {
         var MIN_LENGTH = 4;
@@ -420,29 +394,6 @@ function setup_account_request($page, changeRoute) {
             return;
         }
 
-        // if ($("input[name*='agree-checkbox']").prop("checked") === false) {
-        //     frappe.msgprint("Please agree to the Terms of Use and Privacy Policy.");
-        //     return;
-        // }
-
-        // add plan to args
-        // var plan = frappe.utils.get_url_arg('plan');
-        // if (plan)
-        //     args.plan = plan;
-
-        // var res = frappe.utils.get_url_arg('res');
-        // if (res)
-        //     args.partner = res;
-
-        // args.distribution = window.erpnext_signup.distribution;
-
-
-        // goog_report_conversion();
-        // eslint-disable-line
-
-        // delete args['agree-checkbox'];
-        
-        console.log(args);
         frappe.call({
             method: 'boski.www.signup.signup',
             args: args,
@@ -461,10 +412,7 @@ function setup_account_request($page, changeRoute) {
                 }
             },
 
-        }).always(function() {
-            // $btn.prop("disabled", false).html(btn_html);
-        });
-
+        })
         return false;
 
     }
@@ -481,7 +429,6 @@ function verify_otp($page, changeRoute) {
         return acc;
     }
     , {});
-    console.log(args);
     args['id'] = localStorage.getItem("reference");
 
     var $btn = $page.find('.btn-request');
@@ -511,12 +458,11 @@ function resend_otp($page) {
     var $btn = $page.find('.btn-resend-otp');
     var btn_html = $btn.html();
     $btn.prop("disabled", true).html("Resending verfication code...");
-
+    let args = {};
+    args['email'] = localStorage.getItem("email");
     frappe.call({
-        method: 'central.www.prepare_site.resend_otp',
-        args: {
-            "id": localStorage.getItem("reference")
-        },
+        method: 'boski.www.signup.resend_otp',
+        args: {args},
         type: 'POST',
         btn: $btn,
     }).always(function() {
@@ -610,17 +556,14 @@ function get_args($page){
     let users = $page.find('input[name="number_of_users"]').val();
     let currency = $page.find('select[name="currency"]').val();
     let billing_cycle = $page.find('#billing_cycle').val();
-    // let add_ons = $page.find('#add_ons').val();
     let coupon = $page.find('input[name="coupon"]').val() || "";
     
     let args = {};
     args['users'] = users;
     args['currency'] = currency;
     args['billing_cycle'] = billing_cycle;
-    // args['add_ons'] = add_ons;
     args['coupon'] = coupon;
     args['email'] = localStorage.getItem('email')
-    console.log(args);
     return args;
 }
 
@@ -631,21 +574,15 @@ function get_total_cost($page){
         method: 'boski.www.signup.get_total_cost',
         args: args,
         type: 'POST',
-        // btn: $btn,
         callback: function(r) {
             if (r.exc)
                 return;
-            console.log(r);
             $page.find('.summary').removeClass('hidden');
             if (r.message.billing_cost) {
                 $('.billing').text(r.message.billing_cost);
                 $('.billing-plan').text($page.find('#billing_cycle option:selected').text());
 
             }
-            // if (r.message.add_on) {
-            //     $('.add-on').text(r.message.add_on);
-            //     $('.addon-name').text($page.find('#add_ons option:selected').text());
-            // }
             if (r.message.total_cost) {
                 $('.total').text(r.message.total_cost);
             }
@@ -653,14 +590,11 @@ function get_total_cost($page){
                 $('.discount').text(r.message.discount);
             }
         },
-    }).always(function() {
-        // $btn.prop("disabled", false).html(btn_html);
-    });
+    })
 }
 
 function initiate($page){
     let args = get_args($page);
-    console.log(args);
     var $btn = $page.find('.get-started-button');
     var btn_html = $btn.html();
     $btn.prop("disabled", true).html("Sending details...");
@@ -669,14 +603,10 @@ function initiate($page){
         method: 'boski.www.signup.register',
         args: {args},
         type: 'POST',
-        // btn: $btn,
         callback: function(r) {
             if (r.exc)
                 return;
-            console.log(r);
             window.location.href = r.message;
         },
-    }).always(function() {
-        // $btn.prop("disabled", false).html(btn_html);
-    });
+    })
 }
